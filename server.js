@@ -12,7 +12,8 @@ var markdownExtensions = [
   '.mdwn',
   '.mdtxt',
   '.mdtext',
-  '.text'
+  '.text',
+  '.less',
 ];
 
 
@@ -134,6 +135,7 @@ function startHTTPServer(){
 
 function startLiveReloadServer(){
   return new Promise(function (resolve, reject) {
+
     LIVE_RELOAD_SERVER = liveReload.createServer({
       exts: markdownExtensions,
       port: LIVE_RELOAD_PORT
@@ -251,15 +253,16 @@ function getFile(path){
 
 // Get Custom Less CSS to use in all Markdown files
 
-var customCSSforMarkdown;
-
-getFile(cssPath)
-  .then(function(data){
-    less.render(data)
-      .then(function(data){
-	      customCSSforMarkdown = data.css;
-      });
+function buildStyleSheet (cssPath) {
+  return new Promise(function (resolve, reject) {
+    getFile(cssPath).then(function(data){
+      less.render(data).then(function(data){
+        resolve(data.css);
+       });
+    });
   });
+}
+
 
 
 // linkify: converts github style wiki markdown links to .md links
@@ -303,61 +306,61 @@ function linkify(body){
 // buildHTMLFromMarkDown: compiles the final HTML/CSS output from Markdown/Less files, includes JS
 
 function buildHTMLFromMarkDown(markdownPath){
-	return new Promise(function (resolve, reject) {
-		var css = customCSSforMarkdown, body;
+  return new Promise(function (resolve, reject) {
 
-		var filePath = markdownPath;
-		getFile(filePath).then(function(data){
-			return markdownToHTML(data);
-		})
-		.then(linkify)
-		.then(function(data){
+    console.log(cssPath);
 
-			body = data;
+    var stack = [
+      buildStyleSheet(cssPath),
+      getFile(markdownPath)
+        .then(markdownToHTML)
+        .then(linkify),
+    ];
 
-			getFile(scriptPath).then(function(script){
+    Promise.all(stack).then(function (data) {
 
-				var html;
-				var dirs = markdownPath.split('/');
-				title = dirs[dirs.length-1].split('.md')[0];
-				// console.log(title);
+      var css = data[0];
+      var html_body = data[1];
 
-				// Maybe use something like handlbars here?
+      var output_html;
+      var dirs = markdownPath.split('/');
+      var title = dirs[dirs.length-1].split('.md')[0];
 
-        // console.log(GitHubStyle);
+      if(flags.less === GitHubStyle){
+        output_html = '<!DOCTYPE html>' +
+          '<head>' +
+          '<title>'+title+'</title>' +
+          '<meta charset="utf-8">' +
+          '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
+          '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
+          '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
+          '<style>'+css+'</style>' +
+          '</head>' +
+          '<body><article class="markdown-body">'+html_body+'</article></body>'+
+          '<script src="http://localhost:35729/livereload.js?snipver=1"></script>'+
+          '<script>hljs.initHighlightingOnLoad();</script>';
+      } else {
+        output_html = '<!DOCTYPE html>' +
+          '<head>' +
+          '<title>'+title+'</title>' +
+          '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
+          '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
+          '<meta charset="utf-8">' +
+          '<style>'+css+'</style>' +
+          '</head>' +
+          '<body>'+
+            '<article class="markdown-body">'+
+              html_body +
+            '</article>'+
+           '</body>'+
+          '<script src="http://localhost:35729/livereload.js?snipver=1"></script>' +
+          '<script>hljs.initHighlightingOnLoad();</script>';
 
-				if(flags.less === GitHubStyle){
-					html = '<!DOCTYPE html>' +
-						'<head>' +
-						'<title>'+title+'</title>' +
-						'<meta charset="utf-8">' +
-            '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
-            '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
-            '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
-						'<style>'+css+'</style>' +
-						'</head>' +
-						'<body><article class="markdown-body">'+body+'</article></body>'+
-						'<script src="http://localhost:35729/livereload.js?snipver=1"></script>'+
-            '<script>hljs.initHighlightingOnLoad();</script>';
-				} else {
-					html = '<!DOCTYPE html>' +
-						'<head>' +
-						'<title>'+title+'</title>' +
-						'<meta charset="utf-8">' +
-						'<style>'+customCSSforMarkdown+'</style>' +
-						'</head>' +
-						'<body>'+
-							'<article class="markdown-body">'+
-								body +
-						 	'</article>'+
-						 '</body>'+
-						'<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
-				}
+      }
 
-				resolve(html);
-			});
-		});
-	});
+      resolve(output_html);
+    });
+  });
 }
 
 
@@ -371,6 +374,12 @@ function markdownToHTML(markdownText){
 		});
 	});
 }
+
+
+//function buildMarkdown (markdownFile) {
+ //return getFile(markdownFile).then(markdownToHTML);
+//}
+
 
 
 // markItDown: begins the Markdown compilation process, then sends result when done...
@@ -482,7 +491,7 @@ function http_request_handler(req, res, next){
 		  '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">' +
       '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
 		  '<link rel="shortcut icon" type="image/x-icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/markdown-128.png" />' +
-			'<style>'+customCSSforMarkdown+'</style>' +
+			'<style>'+('')+'</style>' +
 			'</head>' +
 			'<body>'+
 				'<article class="markdown-body">'+
