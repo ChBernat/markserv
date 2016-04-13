@@ -348,6 +348,7 @@
             '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
             '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
             '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
+            '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
             '<style>'+css+'</style>' +
             '</head>' +
             '<body><article class="markdown-body">'+html_body+'</article></body>'+
@@ -359,6 +360,7 @@
             '<title>'+title+'</title>' +
             '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
             '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
+            '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
             '<meta charset="utf-8">' +
             '<style>'+css+'</style>' +
             '</head>' +
@@ -457,6 +459,7 @@
         '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
         '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">' +
         '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
+        '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
         '<link rel="shortcut icon" type="image/x-icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/markdown-128.png" />' +
         '<style>'+(css)+'</style>' +
         '</head>' +
