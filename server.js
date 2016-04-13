@@ -67,9 +67,10 @@
 
   // Options
 
-  var r = flags.version(pkg.version)
-    .option('-h, --home [type]', 'Serve from directory [home]', './')
+  flags.version(pkg.version)
+    .option('-d, --dir [type]', 'Serve from directory [dir]', './')
     .option('-p, --port [type]', 'Serve on port [port]', '8080')
+    .option('-a, --address [type]', 'Serve on ip/address [address]', 'localhost')
     .option('-s, --less [type]', 'Path to Less styles [less]', GitHubStyle)
     .option('-f, --file [type]', 'Open specific file in browser [file]')
     .option('-x, --x', 'Don\'t open browser on run.')
@@ -77,9 +78,10 @@
     .parse(process.argv);
 
 
-  var dir = flags.home;
+  var dir = flags.dir;
   var cssPath = flags.less;
 
+  console.log(flags.address);
 
   var LIVE_RELOAD_PORT,
       LIVE_RELOAD_SERVER,
@@ -142,7 +144,7 @@
   function startHTTPServer(){
     return new Promise(function (resolve, reject) {
       HTTP_SERVER = http.createServer(CONNECT_APP);
-      HTTP_SERVER.listen(HTTP_PORT);
+      HTTP_SERVER.listen(HTTP_PORT, flags.address);
       resolve(HTTP_SERVER);
     });
   }
@@ -154,20 +156,21 @@
       LIVE_RELOAD_SERVER = liveReload.createServer({
         exts: watchExtensions,
         port: LIVE_RELOAD_PORT
-      }).watch(flags.home);
+      }).watch(flags.dir);
 
       resolve(LIVE_RELOAD_SERVER);
     });
   }
 
   function serversActivated(){
-    var address = HTTP_SERVER.address(); //|| {address:''};
-    var urlSafeAddress = address.address === "::" ? "localhost" : address.address;
-    var serveURL = 'http://'+urlSafeAddress+':'+HTTP_PORT;
+    var address = HTTP_SERVER.address();
+    //console.log(address);
+    //var urlSafeAddress = address && address.address === "::" ? "localhost" : address.address || flags.address;
+    var serveURL = 'http://'+flags.address+':'+HTTP_PORT;
 
     msg('start')
      .write('serving content from ')
-     .fg.white().write(path.resolve(flags.home)).reset()
+     .fg.white().write(path.resolve(flags.dir)).reset()
      .write(' on port: ')
      .fg.white().write(''+HTTP_PORT).reset()
      .write('\n');
@@ -177,7 +180,7 @@
      .write(serveURL).reset()
      .write('\n');
 
-    var startMsg = 'serving content from "'+flags.home+'" on port: '+HTTP_PORT;
+    var startMsg = 'serving content from "'+flags.dir+'" on port: '+HTTP_PORT;
 
     msg('less')
      .write('using style from ')
@@ -302,7 +305,7 @@
           href = link.href;
           isFileHref = href.substr(0,8) ==='file:///';
 
-          markdownFile = href.replace('file://'+__dirname, flags.home)+'.md';
+          markdownFile = href.replace('file://'+__dirname, flags.dir)+'.md';
           mdFileExists = fs.existsSync(markdownFile);
 
           if (isFileHref && mdFileExists) {
@@ -345,11 +348,11 @@
             '<head>' +
             '<title>'+title+'</title>' +
             '<meta charset="utf-8">' +
+            '<style>'+css+'</style>' +
+            '<link rel="stylesheet" href="//sindresorhus.com/github-markdown-css/github-markdown.css">' +
             '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
             '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
-            '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
             '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
-            '<style>'+css+'</style>' +
             '</head>' +
             '<body><article class="markdown-body">'+html_body+'</article></body>'+
             '<script src="http://localhost:35729/livereload.js?snipver=1"></script>'+
@@ -458,8 +461,7 @@
         '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+//
         '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
         '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">' +
-        '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">' +
-        '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
+        '<link rel="stylesheet" href="//highlightjs.org/static/demo/styles/github-gist.css">' +
         '<link rel="shortcut icon" type="image/x-icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/markdown-128.png" />' +
         '<style>'+(css)+'</style>' +
         '</head>' +
