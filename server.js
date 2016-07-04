@@ -70,6 +70,9 @@
   flags.version(pkg.version)
     .option('-d, --dir [type]', 'Serve from directory [dir]', './')
     .option('-p, --port [type]', 'Serve on port [port]', '8080')
+    .option('-h, --header [type]', 'Header .md file', null)
+    .option('-f, --footer [type]', 'Footer .md file', null)
+    .option('-n, --navigation [type]', 'Navigation .md file', null)
     .option('-a, --address [type]', 'Serve on ip/address [address]', 'localhost')
     .option('-s, --less [type]', 'Path to Less styles [less]', GitHubStyle)
     .option('-f, --file [type]', 'Open specific file in browser [file]')
@@ -329,7 +332,24 @@
 
       var stack = [
         buildStyleSheet(cssPath),
+
+        // Article
         getFile(markdownPath)
+          .then(markdownToHTML)
+          .then(linkify),
+
+        // Header
+        flags.header && getFile(flags.header)
+          .then(markdownToHTML)
+          .then(linkify),
+
+        // Footer
+        flags.footer && getFile(flags.footer)
+          .then(markdownToHTML)
+          .then(linkify),
+
+        // Navigation
+        flags.navigation && getFile(flags.navigation)
           .then(markdownToHTML)
           .then(linkify),
       ];
@@ -338,6 +358,12 @@
 
         var css = data[0];
         var html_body = data[1];
+
+        var header, footer, navigation;
+
+        if (flags.header) header = data[2];
+        if (flags.footer) footer = data[3];
+        if (flags.navigation) navigation = data[4];
 
         var output_html;
         var dirs = markdownPath.split('/');
@@ -368,9 +394,12 @@
             '<style>'+css+'</style>' +
             '</head>' +
             '<body>'+
-              '<article class="markdown-body">'+
-                html_body +
-              '</article>'+
+              '<div class="container">' +
+                (header ? '<header>' + header + '</header>' : '' ) +
+                (navigation ? '<nav>' + navigation + '</nav>' : '' ) +
+                '<article>' + html_body + '</article>' +
+                (footer ? '<footer>' + footer + '</footer>' : '' ) +
+              '</div>' +
              '</body>'+
             '<script src="http://localhost:35729/livereload.js?snipver=1"></script>' +
             '<script>hljs.initHighlightingOnLoad();</script>';
