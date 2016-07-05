@@ -30,9 +30,11 @@
     "livereload-js": "^2.2.2",
     "marked": "git://github.com/f1lt3r/marked#master",
     "mime": "^1.2.11",
+    "minimatch": "^3.0.2",
     "open": "0.0.5",
     "openport": "0.0.3",
-    "send": "^0.10.1"
+    "send": "^0.10.1",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "connect-livereload": "^0.5.3",
