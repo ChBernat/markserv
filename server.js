@@ -44,6 +44,7 @@
     fs        = require('fs'),
     _         = require('underscore'),
     minimatch = require('minimatch'),
+    cheerio = require('cheerio'),
 
     connect = require('connect'),
     http = require('http'),
@@ -74,6 +75,7 @@
     .option('-d, --dir [type]', 'Serve from directory [dir]', './')
     .option('-w, --domain [type]', 'https://www.your-domain.com.', null)
     .option('-p, --port [type]', 'Serve on port [port]', '8080')
+    .option('-b, --blog [type]', 'Blog settings file .json file', null)
     .option('-h, --header [type]', 'Header .md file', null)
     .option('-f, --footer [type]', 'Footer .md file', null)
     .option('-n, --navigation [type]', 'Navigation .md file', null)
@@ -101,9 +103,185 @@
      .catch(function (reason) {
        console.log(reason);
      });
-
   }
 
+
+  function pathFromFile (file) {
+    return file.substr(0, file.lastIndexOf('/') + 1);
+  }
+
+
+  if (flags.blog) {
+    var settings = require(flags.blog);
+
+    var blogData = settings;
+
+    var settingsPath = pathFromFile(flags.blog);
+    var indexFile = settingsPath + settings.index;
+    var indexPath = pathFromFile(indexFile);
+
+    getFile(indexFile)
+    .then(function(html){
+      console.log(html);
+
+      // Load the HTML file into Cheerio DOM parser
+      var $ = cheerio.load(html);
+      console.log(html);
+
+      // Directory relative to the file
+      var filedir = indexPath;
+
+      // Scan an HTML file for comment nodes that contain "include" Eg: <!--include|page.html-->
+      var nodeCount = 0;
+      var includeCount = 0;
+      var includeSuccessCount = 0;
+
+      function filterHtml (elem, dir) {
+        nodeCount += 1;
+        // console.log(dir);
+
+        if (elem.hasOwnProperty('children')) {
+          var length = elem.children.length;
+          var i = 0;
+
+          for(; i< length; i +=1) {
+            var childNode = elem.childNodes[i];
+            filterHtml(childNode, dir);
+
+            // File include comment
+            if (isIncludeComment(childNode)) {
+              includeCount += 1;
+              var include = parseInclude(childNode, dir);
+
+             // if no error reading file
+              if (include.contents) {
+                var rootNode = cheerio.load(include.contents)._root.children[0];
+                $(childNode).replaceWith(rootNode);
+                filterHtml(rootNode, include.dir);
+                includeSuccessCount += 1;
+              }
+            }
+
+            // Data comment
+            if (isDataComment(childNode)) {
+              // includeCount += 1;
+
+              var dataType = getDataType(childNode);
+
+              if (dataType && blogData.hasOwnProperty(dataType)){
+                var dynamicContent = blogData[dataType];
+                $(childNode).replaceWith(dynamicContent);
+              }
+
+
+            }
+
+          }
+        }
+
+        return elem;
+      }
+
+
+      // Begin searching for comments
+      filterHtml($._root, filedir);
+
+      console.log('Processed ' + nodeCount + ' DOM nodes in: ' + indexFile);
+      console.log('Found ' + includeCount + ' include comments in: ' + indexFile);
+      console.log('Include errors: ' + (includeCount - includeSuccessCount) + ' in: ' + indexFile);
+
+      // // Write out the resulting HTML
+      var htmlOutput = $.html();
+      console.log(htmlOutput);
+    });
+  }
+
+  function getDataType (childNode) {
+    var dataType = childNode.data
+      .slice(childNode.data.lastIndexOf(':')+1)
+      .replace(/\s+/g, '');
+
+    return dataType;
+  }
+
+
+
+  function parseInclude (childNode, dir) {
+    var incFileName = relativeFilename(childNode);
+    var incFilePath = dir + incFileName;
+    var incFileContents = readContents(incFilePath);
+
+    // The new include may change the relative path of it's child nodes
+    var incFileDir = path.dirname(incFilePath);
+
+    return {
+      filename: incFileName,
+      contents: incFileContents,
+      dir: incFileDir,
+    };
+  }
+
+
+
+  function readContents (fpath) {
+    return fs.readFileSync(fpath).toString();
+    // if (!grunt.file.exists(fpath)) {
+    //   grunt.log.warn('Source file "' + fpath + '" not found.');
+    //   return false;
+    // } else {
+    //   return grunt.file.read(fpath);
+    // }
+  }
+
+
+  function isIncludeComment (node) {
+    if (node.type !== 'comment') {
+      return false;
+    }
+
+    // Look for "include" between "<!--" and the ":" colon
+    var tagRef = node.data
+      .slice(0, node.data.indexOf(':'))
+      .replace(/\s+/g, '')
+      .toLowerCase();
+
+    if (tagRef !== 'include') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+
+  function isDataComment (node) {
+    if (node.type !== 'comment') {
+      return false;
+    }
+
+    // Look for "data" between "<!--" and the ":" colon
+    var tagRef = node.data
+      .slice(0, node.data.indexOf(':'))
+      .replace(/\s+/g, '')
+      .toLowerCase();
+
+    if (tagRef !== 'data') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+
+  function relativeFilename (elem) {
+    // Get everything before the colon, remove the whitespace
+    var filename = elem.data
+      .slice(elem.data.lastIndexOf(':')+1)
+      .replace(/\s+/g, '');
+
+    console.log('Found include tag: ' + filename);
+
+    return filename;
+  }
 
 
 
