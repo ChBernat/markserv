@@ -1,0 +1,17 @@
+{
+  "name": "Github Documentation",
+
+  "mapping": {
+
+    "directory": {
+      "plugin": "dir",
+      "template": "directory-listing.html"
+    },
+
+    "markdown": {
+      "plugin": "markdownToHtml",
+      "template": "markdown-document.html"
+    }
+
+  }
+}

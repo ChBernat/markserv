@@ -1,0 +1,22 @@
+{
+  "name": "My Blog",
+  "subtitle": "Subtitle",
+  "herotext": "Abcd efg.",
+  "heroimage": "#",
+  "index": "templates/index.html"
+
+
+  "routemapping": {
+
+    "/": {
+      ''
+    },
+
+    ["*.md", "*.markdown"]: {
+      "plugin": "markdownToHtml",
+      "template": "markdown-document.html"
+    }
+
+  }
+
+}
