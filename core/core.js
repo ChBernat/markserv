@@ -4,6 +4,10 @@
 
   var fs = require('fs');
 
+  var httpServer = require('./http-server.core.js');
+  // var readUTF8 = require('./read-utf8.core.js');
+
+
   function readfile (filename) {
     return fs.readFileSync(filename, 'utf8').toString();
   }
@@ -19,14 +23,13 @@
     pluginAry.forEach(function (pluginfile) {
 
       var plugin = require(pluginfile);
-      var template = loadtemplate('./plugins/'+plugin.template);
+      var template = loadtemplate('/plugins/'+plugin.template);
 
-      console.log(plugin);
-      console.log(template);
+      global.markserv.plugins[plugin.name] = {
+        func: plugin.func,
+        template: plugin.template,
+      };
 
-      // plugins[''];
-      // pluginfile.
-      // pluginAry
     });
   }
 

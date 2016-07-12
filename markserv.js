@@ -56,18 +56,20 @@
   var dir = flags.dir;
   var cssPath = flags.less;
 
-  var settings = require(flags.settings);
+  global.settings = require(flags.settings);
   console.log(settings);
 
 
-  var core = require('./core.js');
-  var httpRequestHandler = require('./core.http-request-handler.js');
-  var httpServer = require('./core.http-server.js');
+  global.markserv = {
+    plugins: {},
+  };
+
+  var core = require('./core/core.js');
 
 
-  core.loadplugin([
-    './plugins/dir.plugin.js',
-  ]);
+  // core.loadplugin([
+  //   './plugins/dir.plugin.js',
+  // ]);
 
 
     // Promise.resolve(listDir(dir))

@@ -38,7 +38,7 @@
   var liveReload = require('livereload');
   var connectLiveReload = require('connect-livereload');
 
-  var http_request_handler = require('./core.http-request-handler.js').handle;
+  var httpRequestHandler = require('./request-handler.core.js');
 
   var flags = global.flags;
 
@@ -98,7 +98,7 @@
   function startConnectApp(live_reload_port){
     return new Promise(function (resolve, reject) {
       CONNECT_APP = connect()
-        .use('/', http_request_handler)
+        .use('/', httpRequestHandler)
         .use(connectLiveReload({
           port: LIVE_RELOAD_PORT
         }));

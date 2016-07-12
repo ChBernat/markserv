@@ -5,30 +5,9 @@
 
   // Markdown Extension Types
 
-  var markdownExtensions = [
-    '.markdown',
-    '.mdown',
-    '.mkdn',
-    '.md',
-    '.mkd',
-    '.mdwn',
-    '.mdtxt',
-    '.mdtext',
-    '.text',
-  ];
+  var markdownExtensions = require('./file-types.core.json').markdown;
 
-  var watchExtensions = markdownExtensions.concat([
-    '.less',
-    '.js',
-    '.css',
-    '.html',
-    '.htm',
-    '.json',
-    '.gif',
-    '.png',
-    '.jpg',
-    '.jpeg',
-  ]);
+  var watchExtensions = markdownExtensions.concat(global.settings.watch);
 
 
   var fs = require('fs');
@@ -43,8 +22,13 @@
     //    .write(unescape(dir)+unescape(req.originalUrl))
     //    .reset().write('\n');
     // }
+    //
+    // console.log(req);
+    var dir = req.path;
 
-    var path = unescape(dir)+unescape(req.originalUrl);
+    // var path = unescape(dir)+unescape(req.originalUrl);
+    var path = unescape(req.originalUrl);
+    console.log(path);
 
     var stat;
     var isDir;
@@ -54,6 +38,7 @@
       stat = fs.statSync(path);
       isDir = stat.isDirectory();
       isMarkdown = false;
+
       if (!isDir) {
         isMarkdown = hasMarkdownExtension(path);
       }
@@ -77,7 +62,8 @@
     else if (isDir) {
       // msg('dir').write(path.slice(2)).reset().write('\n');
       // compileAndSendDirectoryListing(path, res);
-      console.log(compileAndSendDirectoryListing);
+      console.log('compileAndSendDirectoryListing');
+      console.log(markserv.plugins.dir(path));
     }
 
     // Other: Browser requests other MIME typed file (handled by 'send')

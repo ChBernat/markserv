@@ -1,7 +1,7 @@
 {
   "name": "Github Documentation",
 
-  "mapping": {
+  "map": {
 
     "directory": {
       "plugin": "dir",
@@ -11,7 +11,25 @@
     "markdown": {
       "plugin": "markdownToHtml",
       "template": "markdown-document.html"
-    }
+    },
+
+    "404": {
+      "plugin": "404",
+      "template": "404.html"
+    },
+
+    "watch": [
+      ".less",
+      ".js",
+      ".css",
+      ".html",
+      ".htm",
+      ".json",
+      ".gif",
+      ".png",
+      ".jpg",
+      ".jpeg"
+    ]
 
   }
 }
