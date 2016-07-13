@@ -3,6 +3,8 @@
   'use strict';
 
   var fs = require('fs');
+  var path = require('path');
+  var root = path.resolve('.');
 
   var httpServer = require('./http-server.core.js');
   // var readUTF8 = require('./read-utf8.core.js');
@@ -22,8 +24,9 @@
   function loadplugin (pluginAry) {
     pluginAry.forEach(function (pluginfile) {
 
-      var plugin = require(pluginfile);
-      var template = loadtemplate('/plugins/'+plugin.template);
+      // console.log(path.resolve(pluginfile));
+      var plugin = require(path.resolve(pluginfile));
+      // var template = loadtemplate(root + '/plugins/'+plugin.template);
 
       global.markserv.plugins[plugin.name] = {
         func: plugin.func,

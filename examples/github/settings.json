@@ -1,6 +1,8 @@
 {
   "name": "Github Documentation",
 
+  "root": ".",
+
   "map": {
 
     "directory": {
