@@ -2,6 +2,35 @@
 
   'use strict';
 
+  var Promise = require('bluebird');
+  var connect = require('connect');
+  var http = require('http');
+  var open = require("open");
+  var liveReload = require('livereload');
+  var connectLiveReload = require('connect-livereload');
+
+  var flags = global.flags;
+
+  var Server = {
+
+    // Starts the server
+    start: function (requestHandler) {
+      console.log(requestHandler);
+
+      startConnectApp({
+        liveReloadPort: global.flags.livereloadport,
+        requestHandler: requestHandler,
+      })
+      .then(startHTTPServer)
+      .then(startLiveReloadServer)
+      .then(serversActivated);
+
+    },
+
+  };
+
+  module.exports = Server;
+
   // Markdown Extension Types
 
   var markdownExtensions = [
@@ -30,86 +59,33 @@
   ]);
 
 
-  var Promise = require('bluebird');
-  var connect = require('connect');
-  var http = require('http');
-  var openPort = require('openport');
-  var open = require("open");
-  var liveReload = require('livereload');
-  var connectLiveReload = require('connect-livereload');
-
-  var httpRequestHandler = require('./request-handler.core.js');
-
-  var flags = global.flags;
-
-  var PORT_RANGE = {
-    HTTP: [8000, 8100],
-    LIVE_RELOAD: [35729, 35829]
-  };
 
 
-  var LIVE_RELOAD_PORT,
-      LIVE_RELOAD_SERVER,
-      HTTP_PORT,
-      HTTP_SERVER,
-      CONNECT_APP;
 
 
-  // Initialize MarkServ
-
-  findOpenPort(PORT_RANGE.LIVE_RELOAD)
-    .then(setLiveReloadPort)
-    .then(startConnectApp)
-    .then(function(){
-      findOpenPort(PORT_RANGE.HTTP)
-      .then(setHTTPPort)
-      .then(startHTTPServer)
-      .then(startLiveReloadServer)
-      .then(serversActivated);
-    });
 
 
-  function findOpenPort(range){
+
+  function startConnectApp (props) {
     return new Promise(function (resolve, reject) {
-      openPort.find({startingPort: range[0], endingPort: range[1]},
-        function(err, port) {
-          if(err) return reject(err);
-          resolve(port);
-        }
-      );
-    });
-  }
 
-  function setLiveReloadPort(port){
-    return new Promise(function (resolve, reject) {
-      LIVE_RELOAD_PORT = port;
-      resolve(port);
-    });
-  }
-
-  function setHTTPPort(port){
-    return new Promise(function (resolve, reject) {
-      HTTP_PORT = port;
-      resolve(port);
-    });
-  }
-
-
-  function startConnectApp(live_reload_port){
-    return new Promise(function (resolve, reject) {
-      CONNECT_APP = connect()
-        .use('/', httpRequestHandler)
+      var connectApp = connect()
+        .use('/', props.requestHandler)
         .use(connectLiveReload({
-          port: LIVE_RELOAD_PORT
+          port: props.liveReloadPort
         }));
-      resolve(CONNECT_APP);
+
+      resolve({
+        connectApp: connectApp
+      });
+
     });
   }
 
-  function startHTTPServer(){
+  function startHTTPServer (props) {
     return new Promise(function (resolve, reject) {
-      HTTP_SERVER = http.createServer(CONNECT_APP);
-      HTTP_SERVER.listen(HTTP_PORT, flags.address);
+      var HTTP_SERVER = http.createServer(props.connectApp);
+      HTTP_SERVER.listen(global.flags.port, global.flags.address);
       resolve(HTTP_SERVER);
     });
   }
@@ -118,9 +94,9 @@
   function startLiveReloadServer(){
     return new Promise(function (resolve, reject) {
 
-      LIVE_RELOAD_SERVER = liveReload.createServer({
+      var LIVE_RELOAD_SERVER = liveReload.createServer({
         exts: watchExtensions,
-        port: LIVE_RELOAD_PORT
+        port: global.flags.livereloadport,
       }).watch(flags.dir);
 
       resolve(LIVE_RELOAD_SERVER);
@@ -130,13 +106,13 @@
 
   function serversActivated(){
 
-    var address = HTTP_SERVER.address();
+    // var address = HTTP_SERVER.address();
 
     //console.log(address);
     //var urlSafeAddress = address && address.address === "::" ? "localhost" : address.address || flags.address;
 
-    var serveURL = 'http://'+flags.address+':'+HTTP_PORT;
-    console.log(serveURL);
+    // var serveURL = 'http://'+flags.address+':'+HTTP_PORT;
+    // console.log(serveURL);
 
     // msg('start')
     //  .write('serving content from ')
@@ -184,9 +160,6 @@
     //   }
     // }
   }
-
-  module.exports = {
-  };
 
 })();
 

@@ -25,6 +25,7 @@
     "commander": "^2.5.1",
     "connect": "^3.3.3",
     "connect-livereload": "^0.5.3",
+    "handlebars": "^4.0.5",
     "jsdom": "^2.0.0",
     "less": "^2.4.0",
     "livereload": "^0.3.6",

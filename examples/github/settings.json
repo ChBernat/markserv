@@ -7,17 +7,21 @@
 
     "directory": {
       "plugin": "dir",
-      "template": "directory-listing.html"
+      "template": "templates/dir.html"
     },
 
     "markdown": {
       "plugin": "markdownToHtml",
-      "template": "markdown-document.html"
+      "template": "templates/markdown.html"
     },
 
     "404": {
       "plugin": "404",
       "template": "404.html"
+    },
+
+    "binary": {
+      "plugin": "binary"
     },
 
     "watch": [

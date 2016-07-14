@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<!--include:head.html-->
+<body>
+  <article class="markdown-body">
+    <h1>Index of '{{dirname}}'</h1>
+
+    <ul>
+      {{#files}}
+        <li>
+          <a href="{{name}}">{{name}}</a>
+        </li>
+      {{/files}}
+    </ul>
+    <!--include:footer.html-->
+  </article>
+</body>
+</html>

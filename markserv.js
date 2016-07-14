@@ -4,8 +4,6 @@
 
   'use strict';
 
-
-
   // Requirements
 
   var Promise = require('bluebird');
@@ -40,6 +38,7 @@
     // .option('-w, --domain [type]', 'https://www.your-domain.com.', null)
     .option('-a, --address [type]', 'Serve on ip/address [address]', 'localhost')
     .option('-p, --port [type]', 'Serve on port [port]', '8080')
+    .option('-l, --livereloadport [type]', 'LiveReload port [port]', '35729')
     // .option('-b, --blog [type]', 'Blog settings file .json file', null)
     // .option('-h, --header [type]', 'Header .md file', null)
     // .option('-f, --footer [type]', 'Footer .md file', null)
@@ -52,26 +51,49 @@
     .parse(process.argv);
 
   global.flags = flags;
+  console.log(global.flags.port);
+  console.log(global.flags.address);
+
+  // Load Core Markserv Modules
+  var requestHandler = require('./core/requestHandler.js');
+  var server = require('./core/server.js');
+
+  // Begin the server
+  server.start(requestHandler);
+
 
   // var dir = flags.dir;
   // var cssPath = flags.less;
 
-  global.settings = require(flags.settings);
   // console.log(settings);
 
 
 
+  // function Markserv () {
+  //   return {
+  //     settings: require(flags.settings),
+  //     core:
+  //   };
+  // }
 
-  global.markserv = {
-    plugins: {
-    },
-  };
+  // global.markserv = {
+  //   plugins: {
+  //   },
+  // };
 
-  var core = require('./core/core.js');
+  // var httpRequestHandler = require('./request-handler.core.js');
 
-  core.loadplugin([
-    './plugins/dir.plugin.js',
-  ]);
+  // var core = require('./core/core.js')(markserv);
+
+  // var core = require('./core/core.js')(markserv);
+
+
+  // core.loadplugin([
+  //   './plugins/dir.plugin.js',
+  // ]);
+
+
+
 
 
     // Promise.resolve(listDir(dir))
@@ -660,20 +682,6 @@
 
 
 
-//   // hasMarkdownExtension: check whether a file is Markdown type
-
-//   function hasMarkdownExtension(path){
-//     var fileExtension = path.substr(path.length-3).toLowerCase();
-//     var extensionMatch = false;
-
-//     markdownExtensions.forEach(function(extension){
-//       if (extension === fileExtension){
-//         extensionMatch = true;
-//       }
-//     });
-
-//     return extensionMatch;
-//   }
 
 
 

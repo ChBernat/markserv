@@ -3,10 +3,28 @@
   'use strict';
 
   var fs = require('fs');
+  var Handlebars =require('handlebars');
 
-  function dir (path, req, res, next) {
+  function dir (props) {
 
-    var urls = fs.readdirSync(path);
+    var files = fs.readdirSync(props.dirname).map(function (file) {
+      return {
+        name: file
+      };
+    });
+
+    var data = {
+      files: files,
+      dir: props.dirname,
+    };
+
+    var template = Handlebars.compile(props.template);
+    var result = template(data);
+
+    console.log(result);
+
+
+
     // var list = '<ul>\n';
 
     // urls.forEach(function(subPath){
@@ -56,9 +74,9 @@
     //   // }
 
       // Send file
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      res.write(urls.toString());
-      res.end();
+      props.http.res.writeHead(200, {'Content-Type': 'text/html'});
+      props.http.res.write(result);
+      props.http.res.end();
     // });
   }
 
