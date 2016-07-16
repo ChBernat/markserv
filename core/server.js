@@ -15,11 +15,10 @@
 
     // Starts the server
     start: function (requestHandler) {
-      console.log(requestHandler);
 
       startConnectApp({
         liveReloadPort: global.flags.livereloadport,
-        requestHandler: requestHandler,
+        requestHandler: requestHandler.processRequest,
       })
       .then(startHTTPServer)
       .then(startLiveReloadServer)

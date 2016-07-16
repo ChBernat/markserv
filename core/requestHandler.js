@@ -4,6 +4,7 @@
 
 
   var fs = require('fs');
+  var path = require('path');
 
   // Markdown Extension Types
 
@@ -28,48 +29,57 @@
   }
 
 
-  var handle = {
-
-    http404: function http404 () {
-      console.log('404');
-    },
+  // Modules are loaded into these stubs
+  var moduleMapper = {
 
     markdown: function markdown () {
-      console.log('markdown');
-      // msg('markdown').write(path.slice(2)).reset().write('\n');
-      // compileAndSendMarkdown(path, res);
-      // console.log('isMarkdown');
     },
 
     directory: function directory () {
-      console.log('directory');
-      // msg('dir').write(path.slice(2)).reset().write('\n');
-      // markserv.plugins.dir.func({
-      //   dirname: dir,
-      //   template: markserv.plugins.dir.template,
-      //   http: {
-      //     req: req,
-      //     res: res,
-      //     next: next,
-      //   }
-      // });
     },
 
-    // directory: require(markserv.settings);
+    file: function file () {
+    },
 
-    other: function other () {
-      console.log('other');
-      // send(req, path, { root: dir }).pipe(res);
+    http404: function http404 () {
+    },
+
+  };
+
+
+  // Wrapping the stubs in handler funcs to cleanly monitor events
+  var handle = {
+
+    http404: function http404 () {
+      moduleMapper.http404.apply(this, arguments);
+    },
+
+    markdown: function markdown () {
+      // log is markdown
+      moduleMapper.markdown.apply(this, arguments);
+      // msg('markdown').write(path.slice(2)).reset().write('\n');
+      // compileAndSendMarkdown(path, res);
+      // console.log('isMarkdown');
+
+    },
+
+    directory: function directory () {
+      // log is dir
+      moduleMapper.directory.apply(this, arguments);
+    },
+
+    file: function other () {
+      // log is file
+      moduleMapper.file.apply(this, arguments);
       // msg('file').write(path.slice(2)).reset().write('\n');
+
     },
 
   };
 
   function processRequest (req, res, next) {
-    // Better to do with path.resolve?
-    var dir = global.flags.dir + unescape(req.originalUrl);
-    var path = unescape(req.originalUrl);
-    console.log(path);
+
+    var dir = '.' + req.originalUrl;
 
     var stat;
     var isDir;
@@ -86,21 +96,22 @@
       }
     }
     catch (error) {
-      console.log(error);
-      console.log(stat);
-      return handle.http404(error);
+      console.error(error);
+      console.error(stat);
+      return handle.http404.apply(this, arguments);
     }
 
     if (isMarkdown) {
-      return handle.markdown();
+      return handle.markdown.apply(this, arguments);
     }
 
     else if (isDir) {
-      return handle.directory();
+      // Log DIR request
+      return handle.directory.apply(this, arguments);
     }
 
     else {
-      return handle.other();
+      return handle.file.apply(this, arguments);
     }
   }
 
@@ -179,6 +190,16 @@
   // }
 
 
-  module.exports = processRequest;
+  function mapModules (moduleMap) {
+    for (var moduleName in moduleMap) {
+      moduleMapper[moduleName] = moduleMap[moduleName];
+    }
+  }
+
+
+  module.exports = {
+    processRequest: processRequest,
+    mapModules: mapModules,
+  };
 
 })();
