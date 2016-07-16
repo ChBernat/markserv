@@ -4,37 +4,31 @@
 
   'use strict';
 
-  // Requirements
+  // Requirements for other packages
+  // var _         = require('underscore');
+  // var minimatch = require('minimatch');
+  // var marked = require('marked');
+  // var less = require('less');
+  // var jsdom = require('jsdom');
 
+  // Requirements
   var Promise = require('bluebird');
   var fs        = require('fs');
-  var _         = require('underscore');
-  var minimatch = require('minimatch');
-  var cheerio = require('cheerio');
-  var path = require('path');
-  var marked = require('marked');
-  var less = require('less');
-  var jsdom = require('jsdom');
-  var ansi = require('ansi');
-  var cursor = ansi(process.stdout);
   var flags = require('commander');
   var pkg = require('./package.json');
   var path = require('path');
 
-  var errorHandler = require('./core/errorHandler.js');
+
+  var logger = require('./core/logger.js');
 
 
-  // Path Variables
-
-  // var GitHubStyle = __dirname+'/less/github.less',
-    // scriptPath = __dirname+'/script/script.js';
-
-  var defaultSettings = __dirname + '/biscuits/github/settings.js';
+  // Serve Github Flavor setings be default
+  var defaultSettingsFile = __dirname + '/biscuits/github/settings.js';
 
   // Options
 
   flags.version(pkg.version)
-    .option('--settings [type]', 'Path to settings.json file', defaultSettings)
+    .option('--settings [type]', 'Path to settings.json file', defaultSettingsFile)
 
     .option('-d, --dir [type]', 'Serve from directory [dir]', './')
     // .option('-w, --domain [type]', 'https://www.your-domain.com.', null)
@@ -54,13 +48,17 @@
 
   global.flags = flags;
 
+
+
   // Load Core Markserv Modules
   var settings = require(flags.settings);
 
-  // Module to compile an HTML template with optional htmls includes
+  // Modules will be loaded relative to the settings file
+  var settingsPath = path.dirname(flags.settings);
+
+  // Compile HTML with nested includes
   var htmlInclude = require('./core/html-include.js');
 
-  var settingsPath = path.dirname(flags.settings);
 
 
   function requireModule (mapName) {
@@ -107,7 +105,7 @@
         resolve(module);
 
       })
-      .catch(errorHandler);
+      .catch(logger.error);
 
     });
   }
@@ -133,7 +131,7 @@
           loadModule(modulePath)
           .then(function (loadedModule) {
             map[moduleName] = loadedModule;
-            console.log('loaded: ' + moduleName);
+            logger.trace('Loaded module: ' + moduleName);
             deferred.resolve(loadedModule);
           }, function (reason) {
             deferred.reject(reason);
@@ -180,7 +178,7 @@
   function init () {
     mapModules()
     .then(startServer)
-    .catch(errorHandler);
+    .catch(logger.error);
   }
 
 

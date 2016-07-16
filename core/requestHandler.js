@@ -5,6 +5,9 @@
 
   var fs = require('fs');
   var path = require('path');
+  var minimatch = require('minimatch');
+  var logger = require('./logger.js');
+
 
   // Markdown Extension Types
 
@@ -29,53 +32,26 @@
   }
 
 
-  // Modules are loaded into these stubs
+  // Modules are loaded here
+  // Traffic is directed to module
   var moduleMapper = {
 
-    markdown: function markdown () {
-    },
+    // markdown: function markdown () {
+    // },
 
-    directory: function directory () {
-    },
+    // directory: function directory () {
+    // },
 
-    file: function file () {
-    },
+    // http404: function http404 () {
+    // },
 
-    http404: function http404 () {
-    },
+    // file: function file () {
+    // },
 
+    // etc...
+    //
   };
 
-
-  // Wrapping the stubs in handler funcs to cleanly monitor events
-  var handle = {
-
-    http404: function http404 () {
-      moduleMapper.http404.apply(this, arguments);
-    },
-
-    markdown: function markdown () {
-      // log is markdown
-      moduleMapper.markdown.apply(this, arguments);
-      // msg('markdown').write(path.slice(2)).reset().write('\n');
-      // compileAndSendMarkdown(path, res);
-      // console.log('isMarkdown');
-
-    },
-
-    directory: function directory () {
-      // log is dir
-      moduleMapper.directory.apply(this, arguments);
-    },
-
-    file: function other () {
-      // log is file
-      moduleMapper.file.apply(this, arguments);
-      // msg('file').write(path.slice(2)).reset().write('\n');
-
-    },
-
-  };
 
   function processRequest (req, res, next) {
 
@@ -96,22 +72,40 @@
       }
     }
     catch (error) {
-      console.error(error);
-      console.error(stat);
-      return handle.http404.apply(this, arguments);
+      logger.error(error);
+      logger.error(stat);
+      return moduleMapper.http404.apply(this, arguments);
     }
 
+
+    // First lets check if we have a custom module loaded for this kind of file/path
+    // Eg: "*.css", or "posts/"
+    for (var module in moduleMapper) {
+
+      // Where "module" is a file-type, or path
+      // Slice because we remove the "./" we added to the path to make sure the minimatch processes
+      // the comparison relatively. Ok bad english. Sorry.
+      var matchingModuleLoaded = minimatch(dir.slice(2), module, { matchBase: true });
+      console.log(dir.slice(2), module, matchingModuleLoaded);
+
+      if (matchingModuleLoaded) {
+        return moduleMapper[module].apply(this, arguments);
+      }
+    }
+
+    // If we don't have an explicit custom match, continue the core mod handlers
     if (isMarkdown) {
-      return handle.markdown.apply(this, arguments);
+      return moduleMapper.markdown.apply(this, arguments);
     }
 
     else if (isDir) {
       // Log DIR request
-      return handle.directory.apply(this, arguments);
+      return moduleMapper.directory.apply(this, arguments);
     }
 
     else {
-      return handle.file.apply(this, arguments);
+      // Fall back to file
+      return moduleMapper.file.apply(this, arguments);
     }
   }
 

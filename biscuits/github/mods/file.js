@@ -10,7 +10,7 @@
 
   function init () {
 
-    return function markdown (req, res, next) {
+    return function file (req, res, next) {
       var filename = '.' + req.originalUrl;
 
       send(req, path.basename(filename), {
