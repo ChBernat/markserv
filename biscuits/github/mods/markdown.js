@@ -22,7 +22,7 @@
 
     return function markdown (req, res, next) {
 
-      var filename = '.' + req.originalUrl;
+      var filename = global.settingsPath + req.originalUrl;
 
       var markdownRaw = fs.readFileSync(filename).toString();
 

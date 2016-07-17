@@ -55,7 +55,9 @@
 
   function processRequest (req, res, next) {
 
-    var dir = '.' + req.originalUrl;
+    var dir = global.settingsPath + req.originalUrl;
+
+    // console.log(dir);
 
     var stat;
     var isDir;
@@ -86,7 +88,7 @@
       // Slice because we remove the "./" we added to the path to make sure the minimatch processes
       // the comparison relatively. Ok bad english. Sorry.
       var matchingModuleLoaded = minimatch(dir.slice(2), module, { matchBase: true });
-      console.log(dir.slice(2), module, matchingModuleLoaded);
+      // logger.log(dir.slice(2), module, matchingModuleLoaded);
 
       if (matchingModuleLoaded) {
         return moduleMapper[module].apply(this, arguments);

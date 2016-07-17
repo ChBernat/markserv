@@ -6,8 +6,6 @@
 
   // Requirements for other packages
   // var _         = require('underscore');
-  // var minimatch = require('minimatch');
-  // var marked = require('marked');
   // var less = require('less');
   // var jsdom = require('jsdom');
 
@@ -48,13 +46,13 @@
 
   global.flags = flags;
 
-  console.log(process.pid);
 
   // Load Core Markserv Modules
   var settings = require(flags.settings);
 
   // Modules will be loaded relative to the settings file
   var settingsPath = path.dirname(flags.settings);
+  global.settingsPath = settingsPath;
 
   // Compile HTML with nested includes
   var htmlInclude = require('./core/html-include.js');

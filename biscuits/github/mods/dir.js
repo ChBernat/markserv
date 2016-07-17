@@ -26,49 +26,78 @@
   }
 
 
-  function classFromType (file) {
+  function getType (file) {
 
-    var classname = '';
+    var type = {};
 
     if (isDir(file)) {
-      return 'dir';
+      type.dir = true;
+      return type;
     }
 
     if (isMarkdown(file)) {
-     return 'md';
+      type.md = true;
+      return type;
     }
 
-    return 'file';
+    type.file = true;
+    return type;
   }
 
 
-  function decorateFile (filepath) {
-    return {
-      path: '/' + filepath,
-      name: path.basename(filepath),
-      class: classFromType(filepath),
-    };
+  function nameFromType (file) {
+
+    if (isDir(file)) {
+      return file + '/';
+    }
+
+    return file;
   }
+
+
+  function isRoot (req) {
+    return req.originalUrl === '/';
+  }
+
+
 
   function init (htmlTemplate) {
 
     return function dir (req, res, next) {
 
-      var dir = '.' + req.originalUrl;
+      var absoluteDirPath = global.settingsPath + req.originalUrl;
+      var filelist = fs.readdirSync(absoluteDirPath);
+      var root = isRoot(req);
 
-      if (dir.charAt(dir.length-1) === '/') {
-        dir = dir.slice(0, dir.length-1);
-      }
+      var files = filelist.map(function (file) {
 
-      var filelist = fs.readdirSync(dir);
+        var relativeFilepath = root ? file : req.originalUrl + '/' + file;
+        var absoluteFilepath = root ? absoluteDirPath + file : absoluteDirPath + '/' + file;
 
-      var files = filelist.map(function (filepath) {
-        var relativeFilepath = dir + '/' + filepath;
-        return decorateFile(relativeFilepath);
+
+        console.log(absoluteFilepath);
+
+
+        // var type = getType(absoluteDirPath + '/' + file);
+        // console.log(file, type);
+        // //
+        // var fileclass = type.dir ? 'dir' : '' +
+        //   type.md ? 'md' : '' +
+        //   type.file ? 'file' : '';
+
+
+
+        // File object for handlebars template list
+        return {
+          path: relativeFilepath,
+          name: file,
+          // class: fileclass
+        };
+
       });
 
       var data = {
-        dirname: dir,
+        dirname: req.originalUrl,
         files: files,
         processId: process.pid,
       };
