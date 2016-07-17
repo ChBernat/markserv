@@ -74,20 +74,29 @@
         var relativeFilepath = root ? file : req.originalUrl + '/' + file;
         var absoluteFilepath = root ? absoluteDirPath + file : absoluteDirPath + '/' + file;
 
-        var type = getType(absoluteDirPath + '/' + file);
-        console.log(file, type);
-        // //
-        // var fileclass = type.dir ? 'dir' : '' +
-        //   type.md ? 'md' : '' +
-        //   type.file ? 'file' : '';
+        var filetype = getType(absoluteDirPath + '/' + file);
 
+        var filenameOutput = file;
+        var fileclass = '';
 
+        if (filetype.dir) {
+          filenameOutput += '/';
+          fileclass = 'dir';
+        }
+
+        if (filetype.markdown) {
+          fileclass = 'md';
+        }
+
+        if (filetype.file) {
+          fileclass = 'file';
+        }
 
         // File object for handlebars template list
         return {
           path: relativeFilepath,
-          name: file,
-          // class: fileclass
+          name: file ,
+          class: fileclass
         };
 
       });

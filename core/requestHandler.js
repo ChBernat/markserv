@@ -87,8 +87,8 @@
       // Where "module" is a file-type, or path
       // Slice because we remove the "./" we added to the path to make sure the minimatch processes
       // the comparison relatively. Ok bad english. Sorry.
-      var matchingModuleLoaded = minimatch(dir.slice(2), module, { matchBase: true });
-      // logger.log(dir.slice(2), module, matchingModuleLoaded);
+      var matchingModuleLoaded = minimatch(req.originalUrl, module, { matchBase: true });
+      logger.log(req.originalUrl, module, matchingModuleLoaded);
 
       if (matchingModuleLoaded) {
         return moduleMapper[module].apply(this, arguments);
