@@ -74,12 +74,8 @@
         var relativeFilepath = root ? file : req.originalUrl + '/' + file;
         var absoluteFilepath = root ? absoluteDirPath + file : absoluteDirPath + '/' + file;
 
-
-        console.log(absoluteFilepath);
-
-
-        // var type = getType(absoluteDirPath + '/' + file);
-        // console.log(file, type);
+        var type = getType(absoluteDirPath + '/' + file);
+        console.log(file, type);
         // //
         // var fileclass = type.dir ? 'dir' : '' +
         //   type.md ? 'md' : '' +
