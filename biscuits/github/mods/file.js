@@ -14,7 +14,7 @@
       var filename = global.settingsPath + req.originalUrl;
 
       send(req, path.basename(filename), {
-        root:path.dirname(filename)
+        root: path.dirname(filename)
       })
       .pipe(res);
     };

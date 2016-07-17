@@ -36,7 +36,7 @@
     }
 
     if (isMarkdown(file)) {
-      type.md = true;
+      type.markdown = true;
       return type;
     }
 
@@ -74,7 +74,7 @@
         var relativeFilepath = root ? file : req.originalUrl + '/' + file;
         var absoluteFilepath = root ? absoluteDirPath + file : absoluteDirPath + '/' + file;
 
-        var filetype = getType(absoluteDirPath + '/' + file);
+        var filetype = getType(absoluteFilepath);
 
         var filenameOutput = file;
         var fileclass = '';
@@ -85,7 +85,7 @@
         }
 
         if (filetype.markdown) {
-          fileclass = 'md';
+          fileclass = 'markdown';
         }
 
         if (filetype.file) {
@@ -95,8 +95,8 @@
         // File object for handlebars template list
         return {
           path: relativeFilepath,
-          name: file ,
-          class: fileclass
+          name: filenameOutput,
+          class: fileclass,
         };
 
       });

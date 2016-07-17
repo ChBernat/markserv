@@ -633,6 +633,34 @@ body .markdown-body
 }
 
 
-.file{list-style-image: url('https://cdn4.iconfinder.com/data/icons/linecon/512/file-16.png');}
-.dir{list-style-image: url('octicons/build/svg/file-directory.svg');}
-.md{list-style-image: url('https://cdn0.iconfinder.com/data/icons/octicons/1024/markdown-16.png');}
+.file{
+  list-style-type: none;
+  :before {
+    content: url(/octicons/build/svg/file.svg);
+    margin-top: 2px;
+    margin-left: -19px;
+    position:absolute;
+  }
+}
+
+.dir{
+  list-style-type: none;
+  :before {
+    content: url(/octicons/build/svg/file-directory.svg);
+    margin-top: 2px;
+    margin-left: -20px;
+    position:absolute;
+  }
+  // .octicon-file-directory {
+    color: #80a6cd;
+  // }
+}
+.markdown {
+  list-style-type: none;
+  :before {
+    content: url(/octicons/build/svg/markdown.svg);
+    margin-top: 2px;
+    margin-left: -21px;
+    position:absolute;
+  }
+}
