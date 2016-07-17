@@ -45,18 +45,6 @@
 //   }
 
 
-//   // Get Custom Less CSS to use in all Markdown files
-
-//   function buildStyleSheet (cssPath) {
-//     return new Promise(function (resolve, reject) {
-//       getFile(cssPath).then(function(data){
-//         less.render(data).then(function(data){
-//           resolve(data.css);
-//          });
-//       });
-//     });
-//   }
-
 
 
 

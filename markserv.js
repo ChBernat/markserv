@@ -48,7 +48,7 @@
 
   global.flags = flags;
 
-
+  console.log(process.pid);
 
   // Load Core Markserv Modules
   var settings = require(flags.settings);

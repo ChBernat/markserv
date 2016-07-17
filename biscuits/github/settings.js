@@ -23,8 +23,11 @@ module.exports = {
       "module": "mods/file.js"
     },
 
+    "less/github.less": {
+      "module": "mods/less.js",
+    }
+
     // Custom JSON Handler
-    // Relative to this settings file
     // "*.json": {
     //   "module": "mods/json.js",
     //   "template": "mods/json.html"

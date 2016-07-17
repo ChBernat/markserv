@@ -67,10 +67,10 @@
         return decorateFile(relativeFilepath);
       });
 
-
       var data = {
         dirname: dir,
         files: files,
+        processId: process.pid,
       };
 
       var template = Handlebars.compile(htmlTemplate);
