@@ -24,11 +24,6 @@ module.exports = {
     },
 
     // Custom Less Processor
-    // "{{so-arbitary!}}": {
-    //   "module": "mods/less.js",
-    // }
-
-    // Custom Less Processor
     "/less/github.less": {
       "module": "mods/less.js",
     }

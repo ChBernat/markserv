@@ -54,6 +54,7 @@
   var settingsPath = path.dirname(flags.settings);
   global.settingsPath = settingsPath;
 
+
   // Compile HTML with nested includes
   var htmlInclude = require('./core/html-include.js');
 
