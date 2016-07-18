@@ -60,7 +60,6 @@
   }
 
 
-
   function init (htmlTemplate) {
 
     return function dir (req, res, next) {

@@ -53,6 +53,12 @@
   // Modules will be loaded relative to the settings file
   var settingsPath = path.dirname(flags.settings);
   global.settingsPath = settingsPath;
+  global.dir = flags.dir;
+
+  //
+  var MarkservInstance = {
+    test: 123,
+  };
 
 
   // Compile HTML with nested includes
@@ -165,6 +171,7 @@
     // console.log(map);
 
     var requestHandler = require('./core/requestHandler.js');
+    requestHandler.setContext(MarkservInstance);
     requestHandler.mapModules(moduleMap);
 
     var server = require('./core/server.js');

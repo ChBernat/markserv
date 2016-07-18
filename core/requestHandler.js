@@ -14,6 +14,10 @@
   var markdownExtensions = require('./file-types.core.json').markdown;
   // var watchExtensions = markdownExtensions.concat(global.settings.watch);
 
+
+  // The context (Markserv instance object) passed down through request handlers to modules
+  var context = this;
+
   // var send = require('send');
 
   // hasMarkdownExtension: check whether a file is Markdown type
@@ -76,7 +80,7 @@
     catch (error) {
       logger.error(error);
       logger.error(stat);
-      return moduleMapper.http404.apply(this, arguments);
+      return moduleMapper.http404.apply(context, arguments);
     }
 
 
@@ -91,23 +95,23 @@
       logger.log(req.originalUrl, module, matchingModuleLoaded);
 
       if (matchingModuleLoaded) {
-        return moduleMapper[module].apply(this, arguments);
+        return moduleMapper[module].apply(context, arguments);
       }
     }
 
     // If we don't have an explicit custom match, continue the core mod handlers
     if (isMarkdown) {
-      return moduleMapper.markdown.apply(this, arguments);
+      return moduleMapper.markdown.apply(context, arguments);
     }
 
     else if (isDir) {
       // Log DIR request
-      return moduleMapper.directory.apply(this, arguments);
+      return moduleMapper.directory.apply(context, arguments);
     }
 
     else {
       // Fall back to file
-      return moduleMapper.file.apply(this, arguments);
+      return moduleMapper.file.apply(context, arguments);
     }
   }
 
@@ -192,10 +196,14 @@
     }
   }
 
+  function setContext (scope) {
+    context = scope;
+  }
 
   module.exports = {
     processRequest: processRequest,
     mapModules: mapModules,
+    setContext: setContext,
   };
 
 })();
