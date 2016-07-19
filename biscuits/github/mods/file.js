@@ -11,7 +11,8 @@
   function init () {
 
     return function file (req, res, next) {
-      var filename = global.settingsPath + req.originalUrl;
+
+      var filename = this.path.root + req.originalUrl;
 
       send(req, path.basename(filename), {
         root: path.dirname(filename)

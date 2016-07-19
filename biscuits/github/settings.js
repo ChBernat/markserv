@@ -23,10 +23,10 @@ module.exports = {
       "module": "mods/file.js"
     },
 
-    // Custom Less Processor
-    "/less/github.less": {
-      "module": "mods/less.js",
-    }
+    // // Custom Less Processor
+    // "**/github.less": {
+    //   "module": "mods/less.js",
+    // }
 
     // Custom JSON Handler
     // "*.json": {
@@ -42,6 +42,8 @@ module.exports = {
     // }
 
   },
+
+
 
   "watch": [
     ".less",

@@ -59,7 +59,7 @@
 
   function processRequest (req, res, next) {
 
-    var dir = global.settingsPath + req.originalUrl;
+    var dir = context.path.root + req.originalUrl;
 
     // console.log(dir);
 

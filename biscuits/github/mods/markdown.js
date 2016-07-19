@@ -22,16 +22,16 @@
 
     return function markdown (req, res, next) {
 
-      var filename = global.settingsPath + req.originalUrl;
+      var filename = this.path.root + req.originalUrl;
 
       var markdownRaw = fs.readFileSync(filename).toString();
-
 
       markdownToHtml(markdownRaw)
       .then(function (markdownHtml) {
 
         var data = {
           markdown: markdownHtml,
+          markserv: this,
         };
 
         var template = Handlebars.compile(htmlTemplate);

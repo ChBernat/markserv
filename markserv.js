@@ -4,21 +4,13 @@
 
   'use strict';
 
-  // Requirements for other packages
-  // var _         = require('underscore');
-  // var less = require('less');
-  // var jsdom = require('jsdom');
-
-  // Requirements
   var Promise = require('bluebird');
   var fs        = require('fs');
   var flags = require('commander');
   var pkg = require('./package.json');
   var path = require('path');
 
-
   var logger = require('./core/logger.js');
-
 
   // Serve Github Flavor setings be default
   var defaultSettingsFile = __dirname + '/biscuits/github/settings.js';
@@ -55,9 +47,21 @@
   global.settingsPath = settingsPath;
   global.dir = flags.dir;
 
-  //
+
+  // var relativeDirToBiscuitPath = path.dirname(path.relative(flags.dir, flags.settings));
+
+
   var MarkservInstance = {
-    test: 123,
+    pid: process.pid,
+    path: {
+      root: flags.dir,
+      // biscuit: relativeDirToBiscuitPath,
+      biscuit: path.dirname(flags.settings),
+      // markserv: __dirname,
+    },
+    // page: {
+    //   css:
+    // }
   };
 
 
@@ -86,7 +90,7 @@
       }
 
       else {
-        resolve('');
+        resolve('compileTemplate:no template');
       }
 
     });

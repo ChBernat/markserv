@@ -10,11 +10,11 @@
 
     return function http404 (req, res, next) {
 
-      var filename = '.' + req.originalUrl;
-
+      var filename = this.root + req.originalUrl;
 
       var data = {
        filename: filename,
+       markserv: this,
       };
 
       var template = Handlebars.compile(htmlTemplate);
@@ -23,7 +23,6 @@
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.write(result);
       res.end();
-
     };
 
   }

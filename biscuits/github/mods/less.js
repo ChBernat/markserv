@@ -10,7 +10,7 @@
 
     return function less (req, res, next) {
 
-      var filename = global.settingsPath + req.originalUrl;
+      var filename = this.path.root + req.originalUrl;
 
       var lessRaw = fs.readFileSync(filename).toString();
 

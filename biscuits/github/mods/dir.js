@@ -5,6 +5,67 @@
   var fs = require('fs');
   var Handlebars =require('handlebars');
   var path =require('path');
+  var _ =require('underscore');
+
+
+  function init (htmlTemplate) {
+
+    return function dir (req, res, next) {
+
+      var absoluteDirPath = this.path.root + req.originalUrl;
+
+      var filelist = fs.readdirSync(absoluteDirPath);
+      var root = isRoot(req);
+
+
+      var files = filelist.map(function (file) {
+
+        var relativeFilepath = root ? file : req.originalUrl + '/' + file;
+        var absoluteFilepath = root ? absoluteDirPath + file : absoluteDirPath + '/' + file;
+
+        var filetype = getType(absoluteFilepath);
+
+        var filenameOutput = file;
+        var fileclass = '';
+
+        if (filetype.dir) {
+          filenameOutput += '/';
+          fileclass = 'dir';
+        }
+
+        if (filetype.markdown) {
+          fileclass = 'markdown';
+        }
+
+        if (filetype.file) {
+          fileclass = 'file';
+        }
+
+        // File object for handlebars template list
+        return {
+          path: relativeFilepath,
+          name: filenameOutput,
+          class: fileclass,
+        };
+
+      });
+
+
+      var data = _.extend(this, {
+        dir: req.originalUrl,
+        files: files,
+      });
+
+
+      var template = Handlebars.compile(htmlTemplate);
+      var result = template(data);
+
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(result);
+      res.end();
+    };
+
+  }
 
 
 
@@ -59,62 +120,6 @@
     return req.originalUrl === '/';
   }
 
-
-  function init (htmlTemplate) {
-
-    return function dir (req, res, next) {
-
-      var absoluteDirPath = global.settingsPath + req.originalUrl;
-      var filelist = fs.readdirSync(absoluteDirPath);
-      var root = isRoot(req);
-
-      var files = filelist.map(function (file) {
-
-        var relativeFilepath = root ? file : req.originalUrl + '/' + file;
-        var absoluteFilepath = root ? absoluteDirPath + file : absoluteDirPath + '/' + file;
-
-        var filetype = getType(absoluteFilepath);
-
-        var filenameOutput = file;
-        var fileclass = '';
-
-        if (filetype.dir) {
-          filenameOutput += '/';
-          fileclass = 'dir';
-        }
-
-        if (filetype.markdown) {
-          fileclass = 'markdown';
-        }
-
-        if (filetype.file) {
-          fileclass = 'file';
-        }
-
-        // File object for handlebars template list
-        return {
-          path: relativeFilepath,
-          name: filenameOutput,
-          class: fileclass,
-        };
-
-      });
-
-      var data = {
-        dirname: req.originalUrl,
-        files: files,
-        processId: process.pid,
-      };
-
-      var template = Handlebars.compile(htmlTemplate);
-      var result = template(data);
-
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      res.write(result);
-      res.end();
-    };
-
-  }
 
 
   module.exports = init;
