@@ -66,7 +66,7 @@
 
 
   // Compile HTML with nested includes
-  var htmlInclude = require('./core/html-include.js');
+  var htmlParser = require('./core/htmlParser/htmlParser.js').parse;
 
 
 
@@ -84,13 +84,12 @@
 
       if (mapName.hasOwnProperty('template')) {
         var templateFilepath = settingsPath + '/' + mapName.template;
-        var htmlPath = path.dirname(templateFilepath);
 
-        resolve(htmlInclude(templateFilepath, htmlPath));
+        resolve(htmlParser(templateFilepath));
       }
 
       else {
-        resolve('compileTemplate:no template');
+        resolve('compileTemplate: no template');
       }
 
     });
@@ -110,6 +109,7 @@
 
         var compiledTemplate = result[0];
         var loadedModule = result[1];
+
         var module = loadedModule(compiledTemplate);
         resolve(module);
 
