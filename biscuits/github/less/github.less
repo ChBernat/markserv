@@ -648,6 +648,7 @@ body .markdown-body
 .file{
   list-style-type: none;
   :before {
+    color: #000;
     font-family: 'octicons';
     content: "\f011";
      margin-top: 2px;
@@ -661,7 +662,6 @@ body .markdown-body
   :before {
     font-family: 'octicons';
     content: "\f016";
-    // content: url(../octicons/build/svg/file-directory.svg);
     margin-top: 2px;
     margin-left: -20px;
     position:absolute;
@@ -673,11 +673,25 @@ body .markdown-body
 .markdown {
   list-style-type: none;
   :before {
+    color: #000;
     font-family: 'octicons';
     content: "\f0c9";
-    // content: url(../octicons/build/svg/markdown.svg);
     margin-top: 2px;
     margin-left: -21px;
     position:absolute;
   }
+}
+
+footer {
+
+   font-size: 80%;
+
+  .markserv-logo {
+    img {
+      position: relative;
+      top: 3px;
+      height: 16px;
+    }
+  }
+
 }

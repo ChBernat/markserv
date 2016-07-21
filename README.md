@@ -2,6 +2,9 @@
 
 `markserv` serves Markdown files as GitHub style HTML and LiveReloads your changes in the browser as you edit.
 
+![Markserv Logo](http://i.imgur.com/IWGMknf.png])
+
+
 ![Live editing example](http://i.imgur.com/D4MFCMr.gif)
 
 
