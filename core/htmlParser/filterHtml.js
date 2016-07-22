@@ -10,15 +10,21 @@
   var Promise = require('bluebird');
   var cheerio = require('cheerio');
   var log = require('../logger.js');
-  var processors = require('./includeProcessor.js');
   var path = require('path');
+  var loadFile = require('../loadFile.js');
 
   // The root dom element into which everyting else is compiled
   // then returned to the markserv mapper to be rendered though
   // the Handlerbars template via the http server.
   var $DOM;
 
-  function begin (html, dir) {
+  // Load HTML Include Processors
+  // (Used to create HTML templates for the HTTP Request Handler)
+  var processorLoader = require('./includeProcessor.js');
+  var processors = processorLoader(global.settings, global.settingsPath);
+
+
+  function begin (html, dir, loadedHtmlIncludeProcessors) {
     return new Promise(function (resolve, reject) {
 
       // Intentional side effect. We want the Cheerio root DOM to
@@ -42,7 +48,8 @@
 
   function processNode (node, type, includeFilePath) {
     return new Promise(function (resolve, reject) {
-      processors[type](includeFilePath).then(function (content) {
+
+      processors[type](includeFilePath, loadFile).then(function (content) {
         $DOM(node).replaceWith(content);
 
         // The include may have updated the relative path
@@ -52,9 +59,9 @@
           resolve();
         });
       });
+
     });
   }
-
 
   function filter (node, dir) {
     return new Promise(function (resolve, reject) {
@@ -92,7 +99,6 @@
     });
   }
 
-
   function getCommentType (node) {
     return node.data
       .slice(0, node.data.indexOf(':'))
@@ -100,11 +106,9 @@
       .toLowerCase();
   }
 
-
   function hasChildren(elem) {
     return elem.hasOwnProperty('children');
   }
-
 
   // Splits the text content of the comment node and returns everything
   // before the colon, (removes whitespace), and then returns the result
@@ -117,7 +121,6 @@
 
     return filename;
   }
-
 
   function isComment(node) {
     if (!node.hasOwnProperty('type')) {

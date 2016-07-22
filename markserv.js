@@ -9,6 +9,7 @@
   var flags = require('commander');
   var pkg = require('./package.json');
   var path = require('path');
+  // var loadFile = require('./core/loadFile.js');
 
   var logger = require('./core/logger.js');
 
@@ -46,6 +47,7 @@
   var settingsPath = path.dirname(flags.settings);
   global.settingsPath = settingsPath;
   global.dir = flags.dir;
+  global.settings = settings;
 
 
   // var relativeDirToBiscuitPath = path.dirname(path.relative(flags.dir, flags.settings));
@@ -65,10 +67,9 @@
   };
 
 
+
   // Compile HTML with nested includes
   var htmlParser = require('./core/htmlParser/htmlParser.js').parse;
-
-
 
   function requireModule (mapName) {
     return new Promise(function (resolve, reject) {
@@ -77,6 +78,7 @@
       resolve(activeModule);
     });
   }
+
 
 
   function compileTemplate (mapName) {

@@ -9,7 +9,7 @@
   module.exports = function (filepath) {
 
     return new Promise(function (resolve, reject) {
-      fs.readFile(filepath, 'utf8', function (err, data) {
+      fs.readFile(filepath, {encoding: 'utf-8'}, function (err, data) {
         if (err) {
           log.error(err);
           return reject (err);

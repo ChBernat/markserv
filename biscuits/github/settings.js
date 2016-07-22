@@ -2,6 +2,21 @@ module.exports = {
 
   "name": "Github Documentation",
 
+  // Processors read file-includes in HTML Templates and
+  // pass back HTML content used to build the template.
+  // The HTML templates are then passed to the module to
+  // be used by Handlebars to render the content though
+  // the module when the HTTP request is served.
+
+  "processors": {
+    "html": "processors/html.processor.js",
+    "less": "processors/less.processor.js",
+    "svg": "processors/svg.processor.js",
+  },
+
+  // Modules for rendering HTTP content into HTML Templates
+  // All HTTP Requests ate served through relevant modules.
+
   "map": {
 
     "directory": {

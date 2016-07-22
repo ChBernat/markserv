@@ -12,9 +12,11 @@
       var templatePath = path.dirname(templateFile);
 
       loadFile(templateFile).then(function (html) {
+
         filterHtml(html, templatePath).then(function (html) {
           resolve(html);
         });
+
       });
 
     });

@@ -10,25 +10,25 @@
   var Promise = require('bluebird');
   var fs = require('fs');
 
-  var loadedProcessors = {};
-
-  var files = fs.readdirSync(__dirname+'/includeProcessors/');
-
-  files.map(function (filename) {
-    if (isFileType(filename, '.js')){
-      var processorModule = require('./includeProcessors/' + filename);
-      loadedProcessors[processorModule.type] = processorModule.func;
-    }
-  });
-
-
   function isFileType (filename, type) {
     var lastIndexOfType = filename.lastIndexOf(type);
     return filename.length-type.length === lastIndexOfType;
   }
 
+  module.exports = function includeProcessors (settings, path) {
+    var loadedProcessors = {};
 
-  module.exports = loadedProcessors;
+    var processors = settings.processors;
+
+    for (var name in processors) {
+      var processorModule = require(path + '/' + processors[name]);
+      loadedProcessors[processorModule.type] = processorModule.func;
+    }
+
+    console.log(loadedProcessors);
+
+    return loadedProcessors;
+  };
 
 })();
 
