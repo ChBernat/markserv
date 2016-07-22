@@ -6,10 +6,9 @@
 
   'use strict';
 
-  var fs = require('fs');
   var Promise = require('bluebird');
   var cheerio = require('cheerio');
-  var log = require('../logger.js');
+  // var log = require('../log.js');
   var path = require('path');
   var loadFile = require('../loadFile.js');
 
@@ -20,11 +19,12 @@
 
   // Load HTML Include Processors
   // (Used to create HTML templates for the HTTP Request Handler)
-  var processorLoader = require('./includeProcessor.js');
-  var processors = processorLoader(global.settings, global.settingsPath);
+  var processorLoader = require('./loadProcessors.js');
+  var processors = processorLoader(global.markserv.settings,
+                                   global.markserv.settingsPath);
 
 
-  function begin (html, dir, loadedHtmlIncludeProcessors) {
+  function begin (html, dir) {
     return new Promise(function (resolve, reject) {
 
       // Intentional side effect. We want the Cheerio root DOM to
@@ -41,6 +41,7 @@
       }).catch(function (reason) {
         console.log('#FAIL: filterHtml.filter()');
         console.error(reason);
+        reject(reason);
       });
 
     });
@@ -58,6 +59,8 @@
         filter(content, includeDir).then(function () {
           resolve();
         });
+      }).catch(function (reason) {
+        reject(reason);
       });
 
     });
@@ -93,7 +96,9 @@
       }
 
       Promise.all(promiseStack).then(function (data) {
-        return resolve();
+        return resolve(data);
+      }).catch(function (reason) {
+        reject(reason);
       });
 
     });

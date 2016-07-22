@@ -5,11 +5,10 @@
   var Promise = require('bluebird');
   var connect = require('connect');
   var http = require('http');
-  var open = require("open");
   var liveReload = require('livereload');
   var connectLiveReload = require('connect-livereload');
 
-  var flags = global.flags;
+  var flags = global.markserv.flags;
 
   var Server = {
 
@@ -17,7 +16,7 @@
     start: function (requestHandler) {
 
       startConnectApp({
-        liveReloadPort: global.flags.livereloadport,
+        liveReloadPort: flags.livereloadport,
         requestHandler: requestHandler.processRequest,
       })
       .then(startHTTPServer)
@@ -84,7 +83,7 @@
   function startHTTPServer (props) {
     return new Promise(function (resolve, reject) {
       var HTTP_SERVER = http.createServer(props.connectApp);
-      HTTP_SERVER.listen(global.flags.port, global.flags.address);
+      HTTP_SERVER.listen(flags.port, flags.address);
       resolve(HTTP_SERVER);
     });
   }
@@ -95,7 +94,7 @@
 
       var LIVE_RELOAD_SERVER = liveReload.createServer({
         exts: watchExtensions,
-        port: global.flags.livereloadport,
+        port: flags.livereloadport,
       }).watch(flags.dir);
 
       resolve(LIVE_RELOAD_SERVER);

@@ -4,66 +4,45 @@
 
   'use strict';
 
-  var Promise = require('bluebird');
-  var fs        = require('fs');
-  var flags = require('commander');
+  var log = require('./core/log.js');
   var pkg = require('./package.json');
+  var Promise = require('bluebird');
+  var commander = require('commander');
   var path = require('path');
-  // var loadFile = require('./core/loadFile.js');
-
-  var logger = require('./core/logger.js');
 
   // Serve Github Flavor setings be default
-  var defaultSettingsFile = __dirname + '/biscuits/github/settings.js';
+  var defaultSettings = __dirname + '/biscuits/github/settings.js';
 
-  // Options
-
-  flags.version(pkg.version)
-    .option('--settings [type]', 'Path to settings.json file', defaultSettingsFile)
-
+  commander.version(pkg.version)
+    .option('--settings [type]', 'Path to settings.json file', defaultSettings)
     .option('-d, --dir [type]', 'Serve from directory [dir]', './')
-    // .option('-w, --domain [type]', 'https://www.your-domain.com.', null)
     .option('-a, --address [type]', 'Serve on ip/address [address]', 'localhost')
     .option('-p, --port [type]', 'Serve on port [port]', '8080')
-    .option('-l, --livereloadport [type]', 'LiveReload port [port]', '35729')
-    // .option('-b, --blog [type]', 'Blog settings file .json file', null)
-    // .option('-h, --header [type]', 'Header .md file', null)
-    // .option('-f, --footer [type]', 'Footer .md file', null)
-    // .option('-n, --navigation [type]', 'Navigation .md file', null)
-    // // .option('-s, --less [type]', 'Path to Less styles [less]', GitHubStyle)
-    // .option('-f, --file [type]', 'Open specific file in browser [file]')
-    .option('-x, --x', 'Don\'t open browser on run.')
-    // .option('-e, --exporthtml', 'Export to static Html.')
-    // .option('-v, --verbose', 'verbose output')
+    .option('-r, --livereloadport [type]', 'LiveReload port [port]', '35729')
+    .option('-z, --z', 'Do not open the browser.')
+    .option('-x, --exporthtml', 'Export static HTML files.')
+    .option('-l, --loglevel', '0')
     .parse(process.argv);
 
-  global.flags = flags;
-
-
-  // Load Core Markserv Modules
+  var flags = commander;
+  var settingsPath = path.dirname(flags.settings);
   var settings = require(flags.settings);
 
-  // Modules will be loaded relative to the settings file
-  var settingsPath = path.dirname(flags.settings);
-  global.settingsPath = settingsPath;
-  global.dir = flags.dir;
-  global.settings = settings;
+  // It is intentional that I serve the settings on a global namespace.
+  // I do this for maintainability purposes, I do not consider it fit
+  // to pass variables through many levels of a promise tree. If there
+  // is a better way to do this, let me know.
 
-
-  // var relativeDirToBiscuitPath = path.dirname(path.relative(flags.dir, flags.settings));
-
-
-  var MarkservInstance = {
+  // "markserv"  is the *only* global namespace that should be used.
+  global.markserv = {
+    flags: flags,
     pid: process.pid,
     path: {
-      root: flags.dir,
-      // biscuit: relativeDirToBiscuitPath,
-      biscuit: path.dirname(flags.settings),
-      // markserv: __dirname,
+      root: commander.dir,
+      biscuit: path.dirname(settingsPath),
     },
-    // page: {
-    //   css:
-    // }
+    settings: settings,
+    settingsPath: settingsPath
   };
 
 
@@ -72,29 +51,21 @@
   var htmlParser = require('./core/htmlParser/htmlParser.js').parse;
 
   function requireModule (mapName) {
-    return new Promise(function (resolve, reject) {
-      var modulePath = mapName.module;
-      var activeModule = require(settingsPath + '/' + modulePath);
-      resolve(activeModule);
-    });
+    var modulePath = mapName.module;
+    var activeModule = require(settingsPath + '/' + modulePath);
+    return activeModule;
   }
 
 
 
   function compileTemplate (mapName) {
-    return new Promise(function (resolve, reject) {
+    if (mapName.hasOwnProperty('template')) {
+      var templateFilepath = settingsPath + '/' + mapName.template;
+      return htmlParser(templateFilepath);
+    }
 
-      if (mapName.hasOwnProperty('template')) {
-        var templateFilepath = settingsPath + '/' + mapName.template;
-
-        resolve(htmlParser(templateFilepath));
-      }
-
-      else {
-        resolve('compileTemplate: no template');
-      }
-
-    });
+    // No template renderer for this type
+    return false;
   }
 
 
@@ -116,7 +87,7 @@
         resolve(module);
 
       })
-      .catch(logger.error);
+      .catch(log.error);
 
     });
   }
@@ -142,7 +113,7 @@
           loadModule(modulePath)
           .then(function (loadedModule) {
             map[moduleName] = loadedModule;
-            logger.trace('Loaded module: ' + moduleName);
+            log.trace('Loaded module: ' + moduleName);
             deferred.resolve(loadedModule);
           }, function (reason) {
             deferred.reject(reason);
@@ -154,7 +125,9 @@
 
 
       for (var moduleName in settings.map) {
-        promiseStack.push(newPromise(moduleName));
+        if (settings.map.hasOwnProperty(moduleName)) {
+          promiseStack.push(newPromise(moduleName));
+        }
       }
 
       var fire = function () {
@@ -162,7 +135,9 @@
           promiseStack.shift()()
             .then(function () {
               return fire();
-            });
+            }).catch(function (reason) {
+              reject(reason);
+            })
          } else {
            resolve(map);
          }
@@ -176,11 +151,11 @@
   function startServer (moduleMap) {
     // console.log(map);
 
-    var requestHandler = require('./core/requestHandler.js');
-    requestHandler.setContext(MarkservInstance);
+    var requestHandler = require('./core/httpServer/requestHandler.js');
+    requestHandler.setContext(global.markserv);
     requestHandler.mapModules(moduleMap);
 
-    var server = require('./core/server.js');
+    var server = require('./core/httpServer/server.js');
 
     // Begin the server
     server.start(requestHandler);
@@ -190,7 +165,7 @@
   function init () {
     mapModules()
     .then(startServer)
-    .catch(logger.error);
+    .catch(log.error);
   }
 
 
