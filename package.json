@@ -9,7 +9,7 @@
     "github"
   ],
   "bin": {
-    "markserv": "server.js"
+    "markserv": "markserv.js"
   },
   "author": "Alistair MacDonald <al@pwn.io>",
   "email": "al@pwn.io",
@@ -17,6 +17,9 @@
   "repository": {
     "type": "git",
     "url": "http://github.com/f1lt3r/markserv.git"
+  },
+  "scripts": {
+    "test": "nodeunit tests/run-tests.js"
   },
   "dependencies": {
     "ansi": "^0.3.0",
@@ -39,7 +42,6 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "connect-livereload": "^0.5.3",
-    "livereload": "^0.3.7"
+    "nodeunit": "^0.9.1"
   }
 }

@@ -15,6 +15,8 @@
 
         filterHtml(html, templatePath).then(function (html) {
           resolve(html);
+        }).catch(function (reason) {
+          reject(reason);
         });
 
       });

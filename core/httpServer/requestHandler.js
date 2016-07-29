@@ -85,15 +85,17 @@
     // First lets check if we have a custom module loaded for this kind of file/path
     // Eg: "*.css", or "posts/"
     for (var module in moduleMapper) {
+      if (moduleMapper.hasOwnProperty(module)) {
 
-      // Where "module" is a file-type, or path
-      // Slice because we remove the "./" we added to the path to make sure the minimatch processes
-      // the comparison relatively. Ok bad english. Sorry.
-      var matchingModuleLoaded = minimatch(req.originalUrl, module, { matchBase: true });
-      log.log(req.originalUrl, module, matchingModuleLoaded);
+        // Where "module" is a file-type, or path
+        // Slice because we remove the "./" we added to the path to make sure the minimatch processes
+        // the comparison relatively. Ok bad english. Sorry.
+        var matchingModuleLoaded = minimatch(req.originalUrl, module, { matchBase: true });
+        log.trace(req.originalUrl, module, matchingModuleLoaded);
 
-      if (matchingModuleLoaded) {
-        return moduleMapper[module].apply(context, arguments);
+        if (matchingModuleLoaded) {
+          return moduleMapper[module].apply(context, arguments);
+        }
       }
     }
 
@@ -116,7 +118,10 @@
 
   function mapModules (moduleMap) {
     for (var moduleName in moduleMap) {
-      moduleMapper[moduleName] = moduleMap[moduleName];
+      if (moduleMap.hasOwnProperty(moduleName)) {
+
+        moduleMapper[moduleName] = moduleMap[moduleName];
+      }
     }
   }
 

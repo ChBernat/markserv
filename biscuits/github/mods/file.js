@@ -2,15 +2,13 @@
 
   'use strict';
 
-  var fs = require('fs');
-  var Promise = require('bluebird');
   var send = require('send');
   var path = require('path');
 
 
   function init () {
 
-    return function file (req, res, next) {
+    return function file (req, res) { // (req, res, next)
 
       var filename = this.path.root + req.originalUrl;
 

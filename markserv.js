@@ -9,24 +9,33 @@
   var Promise = require('bluebird');
   var commander = require('commander');
   var path = require('path');
+  var open = require('open');
+  require('./core/colors.js');
 
   // Serve Github Flavor setings be default
   var defaultSettings = __dirname + '/biscuits/github/settings.js';
 
   commander.version(pkg.version)
-    .option('--settings [type]', 'Path to settings.json file', defaultSettings)
+    .option('-s, --settings [type]', 'Path to settings.json file', defaultSettings)
     .option('-d, --dir [type]', 'Serve from directory [dir]', './')
     .option('-a, --address [type]', 'Serve on ip/address [address]', 'localhost')
     .option('-p, --port [type]', 'Serve on port [port]', '8080')
     .option('-r, --livereloadport [type]', 'LiveReload port [port]', '35729')
     .option('-z, --z', 'Do not open the browser.')
     .option('-x, --exporthtml', 'Export static HTML files.')
-    .option('-l, --loglevel', '0')
+    .option('-l, --loglevel [type]', 'Verbosity of log messages.', '3')
     .parse(process.argv);
 
   var flags = commander;
+
+  // Hook the logger up to the goads
+  log.setLevel(flags.loglevel);
+
   var settingsPath = path.dirname(flags.settings);
   var settings = require(flags.settings);
+
+  console.log(settingsPath);
+  console.log(settings);
 
   // It is intentional that I serve the settings on a global namespace.
   // I do this for maintainability purposes, I do not consider it fit
@@ -37,6 +46,7 @@
   global.markserv = {
     flags: flags,
     pid: process.pid,
+    url: 'http://' + flags.address + ':' + flags.port,
     path: {
       root: commander.dir,
       biscuit: path.dirname(settingsPath),
@@ -44,6 +54,7 @@
     settings: settings,
     settingsPath: settingsPath
   };
+
 
 
 
@@ -71,6 +82,7 @@
 
   function loadModule (name) {
     return new Promise(function (resolve, reject) {
+      log.trace('loadModule '.white + ''.reset + name);
 
       var promiseStack = [
         compileTemplate(name),
@@ -87,7 +99,10 @@
         resolve(module);
 
       })
-      .catch(log.error);
+      .catch(function (reason) {
+        log.error(reason);
+        reject(reason);
+      });
 
     });
   }
@@ -106,7 +121,6 @@
           var deferred = Promise.defer();
 
           // log verbose loading module name
-          // console.log(moduleName);
 
           var modulePath = settings.map[moduleName];
 
@@ -118,7 +132,6 @@
           }, function (reason) {
             deferred.reject(reason);
           });
-
           return deferred.promise;
         };
       }
@@ -137,7 +150,7 @@
               return fire();
             }).catch(function (reason) {
               reject(reason);
-            })
+            });
          } else {
            resolve(map);
          }
@@ -149,26 +162,49 @@
 
 
   function startServer (moduleMap) {
-    // console.log(map);
+    return new Promise(function (resolve, reject) {
 
-    var requestHandler = require('./core/httpServer/requestHandler.js');
-    requestHandler.setContext(global.markserv);
-    requestHandler.mapModules(moduleMap);
+      var requestHandler = require('./core/httpServer/requestHandler.js');
+      requestHandler.setContext(global.markserv);
+      requestHandler.mapModules(moduleMap);
 
-    var server = require('./core/httpServer/server.js');
+      var server = require('./core/httpServer/server.js');
 
-    // Begin the server
-    server.start(requestHandler);
+      // Begin the server
+      var liveServer =  server.start(requestHandler);
+
+      // Log server details
+      log.log('http server started'.white);
+      log.log('press ' + ('[Ctrl + C]'.white) + ' or ' + ('kill '+process.pid).white + ''.reset + ' to stop');
+      log.log('dir ' + path.resolve(flags.dir).white.underline);
+      log.log('url ' + global.markserv.url.white.underline);
+      log.log('pid ' + (''+process.pid).white);
+      log.log('settings ' + (settingsPath).white.underline);
+
+      if (liveServer) {
+        resolve(liveServer);
+      } else {
+        reject(liveServer);
+      }
+    });
   }
 
+
+  function openBrowser () {
+    if (!flags.z) {
+      open(global.markserv.url);
+    }
+  }
 
   function init () {
     mapModules()
     .then(startServer)
+    .then(openBrowser)
     .catch(log.error);
   }
 
-
   init();
+
+  module.exports = global.markserv;
 
 })();

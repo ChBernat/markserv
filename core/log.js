@@ -2,9 +2,7 @@
 
   'use strict';
 
-  // Use these for pretty output later
-  var ansi = require('ansi');
-  var cursor = ansi(process.stdout);
+  require('./colors.js');
 
   var levels = {
     'trace': 0,
@@ -16,11 +14,24 @@
     'fatal': 6,
   };
 
-  var codes = {
-    0: 'Unknown',
+  var levels_enum = {
+    0: 'trace',
+    1: 'debug',
+    2: 'info',
+    3: 'log',
+    4: 'warn',
+    5: 'error',
+    6: 'fatal',
   };
 
-  var activeLogLevel = 0;
+  // var codes = {
+  //   0: 'Unknown',
+  // };
+
+  var activeLogLevel = 3;
+
+  var MarkservTitle = ''.reset + 'MS↓'.bgGreen.white.bold + ' '.reset + (levels_enum[activeLogLevel]+':').white + ' ';
+
 
   function cap (word) {
     return word.charAt(0).toUpperCase() + word.slice(1) + ': ';
@@ -34,21 +45,28 @@
 
     switch (this) {
       case 'trace':
-        console.log(cap(this), detail, data);
+        // console.log(cap(this), detail, data);
+        console.log(MarkservTitle + detail);
         break;
       case 'debug':
-        console.log(this, detail, data);
+        // console.log(this, detail, data);
+        console.log(MarkservTitle + detail);
         break;
       case 'info':
-        console.log(this, detail, data);
+        console.log(MarkservTitle + detail);
+        // console.log(this, detail, data);
         break;
       case 'log':
-        console.log(this, detail, data);
+        console.log(MarkservTitle + detail);
+        // console.log(MarkservTitle + module(detail));
+        // console.log(this, detail, data);
         break;
       case 'warn':
-        console.warn(this, detail, data);
+        // console.warn(this, detail, data);
+        console.warn(MarkservTitle + detail);
         break;
       case 'error':
+        console.log(MarkservTitle + detail);
         console.error(this, detail, data);
         break;
       case 'fatal':
@@ -62,7 +80,7 @@
 
   module.exports = {
 
-    setLogLevel: function (level) {
+    setLevel: function (level) {
       activeLogLevel = level;
     },
 
@@ -79,16 +97,16 @@
       handleMessage.apply('debug', arguments);
     },
     info: function () {
-      handleMessage.apply('debug', arguments);
+      handleMessage.apply('info', arguments);
     },
     log: function () {
-      handleMessage.apply('debug', arguments);
+      handleMessage.apply('log', arguments);
     },
     warn: function () {
-      handleMessage.apply('debug', arguments);
+      handleMessage.apply('warn', arguments);
     },
     error: function () {
-      handleMessage.apply('debug', arguments);
+      handleMessage.apply('error', arguments);
     },
     fatal: function () {
       handleMessage.apply('fatal', arguments);

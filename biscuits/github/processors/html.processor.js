@@ -10,14 +10,15 @@
   // and pass it back as a live cheerio DOM node to be instered
   // into the HTML DOM.
   function processHtmlInclude (includeFilePath, loadFile) {
-    console.log(loadFile);
     return new Promise(function (resolve, reject) {
 
       loadFile(includeFilePath).then(function (htmlFileContents) {
 
         var $contentAsHtmlDOM = cheerio.load(htmlFileContents)._root;
-
         resolve($contentAsHtmlDOM);
+
+      }).catch(function (reason) {
+        reject(reason);
       });
 
     });

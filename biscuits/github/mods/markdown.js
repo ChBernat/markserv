@@ -11,7 +11,10 @@
   function markdownToHtml (markdownText) {
     return new Promise(function (resolve, reject) {
       marked(markdownText, function(err, data){
-        if (err) return reject(err);
+        if (err) {
+          return reject(err);
+        }
+
         resolve(data);
       });
     });

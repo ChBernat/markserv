@@ -8,7 +8,7 @@
 
   function init () {
 
-    return function less (req, res, next) {
+    return function less (req, res) { // (req, res, next)
 
       var filename = this.path.root + req.originalUrl;
 

@@ -8,7 +8,7 @@
 
   var Promise = require('bluebird');
   var cheerio = require('cheerio');
-  // var log = require('../log.js');
+  var log = require('../log.js');
   var path = require('path');
   var loadFile = require('../loadFile.js');
 
@@ -39,8 +39,8 @@
         var htmlTemplateOutput = $DOM.html();
         resolve(htmlTemplateOutput);
       }).catch(function (reason) {
-        console.log('#FAIL: filterHtml.filter()');
-        console.error(reason);
+        log.error('failed to filter html');
+        log.error(reason);
         reject(reason);
       });
 
@@ -91,7 +91,7 @@
       });
 
       if (!promiseStack.length) {
-        console.log('0 promises created in this html section');
+        log.debug('No promises created for this html.');
         return resolve();
       }
 

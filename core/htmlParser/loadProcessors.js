@@ -6,26 +6,23 @@
 
   'use strict';
 
-  var path = require('path');
-  var Promise = require('bluebird');
-  var fs = require('fs');
+  var log = require('../log.js');
 
-  function isFileType (filename, type) {
-    var lastIndexOfType = filename.lastIndexOf(type);
-    return filename.length-type.length === lastIndexOfType;
-  }
 
   module.exports = function includeProcessors (settings, path) {
+
     var loadedProcessors = {};
 
     var processors = settings.processors;
 
     for (var name in processors) {
-      var processorModule = require(path + '/' + processors[name]);
-      loadedProcessors[processorModule.type] = processorModule.func;
+      if (processors.hasOwnProperty(name)) {
+        var processorFile = path + '/' + processors[name];
+        var processorModule = require(processorFile);
+        loadedProcessors[processorModule.type] = processorModule.func;
+        log.info('loaded processor ' + ('"'+name+'"').white + ' from ' + ('"'+processorFile+'"').white);
+      }
     }
-
-    console.log(loadedProcessors);
 
     return loadedProcessors;
   };

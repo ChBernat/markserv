@@ -4,13 +4,12 @@
 
   var fs = require('fs');
   var Handlebars =require('handlebars');
-  var path =require('path');
   var _ =require('underscore');
 
 
   function init (htmlTemplate) {
 
-    return function dir (req, res, next) {
+    return function dir (req, res) { // (req, res, next)
 
       var absoluteDirPath = this.path.root + req.originalUrl;
 
@@ -106,14 +105,14 @@
   }
 
 
-  function nameFromType (file) {
+  // function nameFromType (file) {
 
-    if (isDir(file)) {
-      return file + '/';
-    }
+  //   if (isDir(file)) {
+  //     return file + '/';
+  //   }
 
-    return file;
-  }
+  //   return file;
+  // }
 
 
   function isRoot (req) {
