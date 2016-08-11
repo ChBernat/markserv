@@ -81,7 +81,6 @@
       return moduleMapper.http404.apply(context, arguments);
     }
 
-
     // First lets check if we have a custom module loaded for this kind of file/path
     // Eg: "*.css", or "posts/"
     for (var module in moduleMapper) {
@@ -95,24 +94,39 @@
 
         if (matchingModuleLoaded) {
           return moduleMapper[module].apply(context, arguments);
+        } else {
+          // log.warn(module + ' module not in map or ' + module + 'module error');
         }
       }
     }
 
     // If we don't have an explicit custom match, continue the core mod handlers
     if (isMarkdown) {
-      return moduleMapper.markdown.apply(context, arguments);
+      if (moduleMapper.hasOwnProperty('markdown')) {
+        return moduleMapper.markdown.apply(context, arguments);
+      } else {
+        log.warn('Markdown module not in map or Markdown module error');
+      }
     }
 
     else if (isDir) {
       // Log DIR request
-      return moduleMapper.directory.apply(context, arguments);
+      if (moduleMapper.hasOwnProperty('directory')) {
+        return moduleMapper.directory.apply(context, arguments);
+      } else {
+        log.warn('Directory module not in map or Directory module error');
+      }
     }
 
     else {
       // Fall back to file
-      return moduleMapper.file.apply(context, arguments);
+      if (moduleMapper.hasOwnProperty('file')) {
+        return moduleMapper.file.apply(context, arguments);
+      } else {
+        log.warn('File module not in map or File module error');
+      }
     }
+
   }
 
 

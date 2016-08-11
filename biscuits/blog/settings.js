@@ -23,16 +23,17 @@ module.exports = {
 
   "map": {
 
-
+    // Turn off directory listings
     "directory": {
       "module": "mods/dir.js",
       "template": "mods/dir.html"
     },
 
-    "markdown": {
-      "module": "mods/markdown.js",
-      "template": "mods/markdown.html"
-    },
+    // Turn off standard markdown mod
+    // "markdown": {
+    //   "module": "mods/markdown.js",
+    //   "template": "mods/markdown.html"
+    // },
 
     "http404": {
       "module": "mods/http-404.js",
@@ -43,22 +44,12 @@ module.exports = {
       "module": "mods/file.js"
     },
 
-    // // Custom Less Processor
-    // "**/github.less": {
-    //   "module": "mods/less.js",
-    // }
-
-    // Custom JSON Handler
-    // "*.json": {
-    //   "module": "mods/json.js",
-    //   "template": "mods/json.html"
-    // }
 
     // Custom post handler
     // Relative to this settings file
     // "**/posts/*.md": {
-    //   "module": "mods/custom-post-handler.js",
-    //   "template": "mods/custom-post-handler.html"
+    //   "module": "mods/markdown-post.js",
+    //   "template": "mods/markdown-post.html"
     // }
 
   },
