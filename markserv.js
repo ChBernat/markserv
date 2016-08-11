@@ -31,7 +31,7 @@
   // Hook the logger up to the goads
   log.setLevel(flags.loglevel);
 
-  var settingsPath = path.dirname(flags.settings);
+  var settingsPath = path.dirname(path.resolve(flags.settings));
   var settings = require(flags.settings);
 
   console.log(settingsPath);
