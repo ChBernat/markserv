@@ -5,6 +5,7 @@
   var cheerio = require('cheerio');
   var Promise = require('bluebird');
   var lessc = require('less');
+  var path = require('path');
 
 
   // With the HTML type, we simply get the new HTML content
@@ -14,12 +15,18 @@
     return new Promise(function (resolve, reject) {
 
       loadFile(includeFilePath).then(function (lessFileContents) {
-        lessc.render(lessFileContents).then(function (lessData) {
+        lessc.render(lessFileContents, {
+
+          // Make sure includes happen relative to the current file
+          filename: path.resolve(includeFilePath),
+        }).then(function (lessData) {
 
           var styleTag = '<style>' + lessData.css + '</style>';
           var $styleTagAsHtmlDOM = cheerio.load(styleTag)._root;
 
           resolve($styleTagAsHtmlDOM);
+        }).catch(function (reason) {
+          reject(reason);
         });
       });
 
