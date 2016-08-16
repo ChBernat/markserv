@@ -24,12 +24,11 @@ module.exports = {
   "map": {
 
     // Turn off directory listings
-    "directory": {
-      "module": "mods/dir.js",
-      "template": "mods/dir.html"
-    },
+    // "directory": {
+      // "module": "mods/dir.js",
+      // "template": "mods/dir.html"
+    // },
 
-    // Turn off standard markdown mod
     // "markdown": {
     //   "module": "mods/markdown.js",
     //   "template": "mods/markdown.html"
@@ -44,13 +43,12 @@ module.exports = {
       "module": "mods/file.js"
     },
 
-
     // Custom post handler
     // Relative to this settings file
-    // "**/posts/*.md": {
-    //   "module": "mods/markdown-post.js",
-    //   "template": "mods/markdown-post.html"
-    // }
+    "**/posts/*.md": {
+      "module": "mods/markdown-post.js",
+      "template": "mods/markdown-post.html"
+    }
 
   },
 

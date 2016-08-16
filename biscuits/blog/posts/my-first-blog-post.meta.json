@@ -1,3 +1,8 @@
 {
-  "*": null
+  "date": "today",
+  "tags": [
+    "post",
+    "first"
+  ],
+  "img": "./first-post.jpg"
 }

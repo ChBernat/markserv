@@ -95,7 +95,7 @@
         if (matchingModuleLoaded) {
           return moduleMapper[module].apply(context, arguments);
         } else {
-          // log.warn(module + ' module not in map or ' + module + 'module error');
+          log.warn(module + ' module not in map or ' + module + 'module error');
         }
       }
     }

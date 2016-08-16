@@ -1,7 +1,7 @@
 # My First Blog Post
 
-{{post.date}}
-{{post.tags}}
-{{post.img}}
+{{meta.date}}
+{{meta.tags}}
+{{meta.img}}
 
 Welcome to my first blog post!

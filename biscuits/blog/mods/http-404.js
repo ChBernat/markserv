@@ -10,7 +10,7 @@
 
     return function http404 (req, res, next) {
 
-      var filename = this.root + req.originalUrl;
+      var filename = this.root && this.root || '' + req.originalUrl;
 
       var data = {
        filename: filename,
