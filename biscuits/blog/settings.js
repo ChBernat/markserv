@@ -4,13 +4,17 @@ module.exports = {
 
   // "heroimage": "#",
 
+
+  // Setting an index will... [EXPLAIN!]
+  "index": "partials/index.html",
+
   // Processors read file-includes in HTML Templates and
   // pass back HTML content used to build the template.
   // The HTML templates are then passed to the module to
   // be used by Handlebars to render the content though
   // the module when the HTTP request is served.
 
-  // "index": "templates/index.html",
+
 
   "processors": {
     "html": "processors/html.processor.js",
@@ -24,10 +28,10 @@ module.exports = {
   "map": {
 
     // Turn off directory listings
-    // "directory": {
-      // "module": "mods/dir.js",
-      // "template": "mods/dir.html"
-    // },
+    "directory": {
+      "module": "mods/dir.js",
+      "template": "mods/dir.html"
+    },
 
     // "markdown": {
     //   "module": "mods/markdown.js",

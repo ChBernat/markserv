@@ -4,5 +4,7 @@
     "post",
     "first"
   ],
-  "img": "./first-post.jpg"
+  "img": "./first-post.jpg",
+  "priority": 0.8,
+  "canonical": null,
 }
