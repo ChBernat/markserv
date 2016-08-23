@@ -59,9 +59,12 @@
       var template = Handlebars.compile(htmlTemplate);
       var result = template(data);
 
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      res.write(result);
-      res.end();
+      // Pass Back to HTTP Request Handler or HTTP Exporter
+      return {
+        statusCode: 200,
+        contentType: 'text/html',
+        data: result,
+      };
     };
 
   }
@@ -103,16 +106,6 @@
     type.file = true;
     return type;
   }
-
-
-  // function nameFromType (file) {
-
-  //   if (isDir(file)) {
-  //     return file + '/';
-  //   }
-
-  //   return file;
-  // }
 
 
   function isRoot (req) {

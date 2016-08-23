@@ -5,7 +5,7 @@ module.exports = {
   // "heroimage": "#",
 
 
-  // Setting an index will... [EXPLAIN!]
+  // Setting an index will... [TBD]
   "index": "partials/index.html",
 
   // Processors read file-includes in HTML Templates and
@@ -21,6 +21,7 @@ module.exports = {
     "less": "processors/less.processor.js",
     "svg": "processors/svg.processor.js",
   },
+
 
   // Modules for rendering HTTP content into HTML Templates
   // All HTTP Requests ate served through relevant modules.
@@ -52,7 +53,12 @@ module.exports = {
     "**/posts/*.md": {
       "module": "mods/markdown-post.js",
       "template": "mods/markdown-post.html"
-    }
+    },
+
+    "/": {
+      "module": "mods/index.js",
+      "template": "partials/index.html"
+    },
 
   },
 

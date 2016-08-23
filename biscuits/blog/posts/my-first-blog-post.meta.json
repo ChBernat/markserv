@@ -1,4 +1,5 @@
 {
+  "title": "My First Blog Post",
   "date": "today",
   "tags": [
     "post",
@@ -6,5 +7,5 @@
   ],
   "img": "./first-post.jpg",
   "priority": 0.8,
-  "canonical": null,
+  "canonical": null
 }

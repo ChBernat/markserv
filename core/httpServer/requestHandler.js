@@ -64,6 +64,7 @@
     var stat;
     var isDir;
     var isMarkdown;
+    var payload;
 
     try {
 
@@ -103,7 +104,7 @@
     // If we don't have an explicit custom match, continue the core mod handlers
     if (isMarkdown) {
       if (moduleMapper.hasOwnProperty('markdown')) {
-        return moduleMapper.markdown.apply(context, arguments);
+        payload = moduleMapper.markdown.apply(context, arguments);
       } else {
         log.warn('Markdown module not in map or Markdown module error');
       }
@@ -112,7 +113,7 @@
     else if (isDir) {
       // Log DIR request
       if (moduleMapper.hasOwnProperty('directory')) {
-        return moduleMapper.directory.apply(context, arguments);
+        payload = moduleMapper.directory.apply(context, arguments);
       } else {
         log.warn('Directory module not in map or Directory module error');
       }
@@ -121,12 +122,26 @@
     else {
       // Fall back to file
       if (moduleMapper.hasOwnProperty('file')) {
-        return moduleMapper.file.apply(context, arguments);
+        payload = moduleMapper.file.apply(context, arguments);
       } else {
         log.warn('File module not in map or File module error');
       }
     }
 
+    return httpRespond.apply(payload, arguments);
+  }
+
+
+  function httpRespond (req, res) {
+
+    res.writeHead(this.statusCode, {
+      'Content-Type': this.contentType,
+    });
+
+    res.write(this.data);
+    res.end();
+
+    return payload;
   }
 
 

@@ -50,6 +50,14 @@
   function processNode (node, type, includeFilePath) {
     return new Promise(function (resolve, reject) {
 
+      // console.log(type, includeFilePath);
+      if (!processors.hasOwnProperty(type)) {
+        // return reject('No processor type: ' + type);
+        resolve();
+      }
+      // console.log(type);
+
+
       processors[type](includeFilePath, loadFile).then(function (content) {
         $DOM(node).replaceWith(content);
 
@@ -60,7 +68,7 @@
           resolve();
         });
       }).catch(function (reason) {
-        reject(reason);
+        return reject(reason);
       });
 
     });

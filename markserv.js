@@ -62,9 +62,13 @@
   var htmlParser = require('./core/htmlParser/htmlParser.js').parse;
 
   function requireModule (mapName) {
-    var modulePath = mapName.module;
-    var activeModule = require(settingsPath + '/' + modulePath);
-    return activeModule;
+    if (mapName.hasOwnProperty('module')) {
+      var modulePath = mapName.module;
+      var activeModule = require(settingsPath + '/' + modulePath);
+      return activeModule;
+    }
+
+    return function wow () {};
   }
 
 
@@ -132,6 +136,7 @@
           }, function (reason) {
             deferred.reject(reason);
           });
+
           return deferred.promise;
         };
       }
