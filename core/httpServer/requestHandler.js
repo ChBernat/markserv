@@ -55,7 +55,7 @@
   };
 
 
-  function processRequest (req) { // (req, res, next)
+  function processRequest (req, res, next) {
 
     var dir = context.path.root + req.originalUrl;
 
@@ -79,7 +79,8 @@
     catch (error) {
       log.error(error);
       log.error(stat);
-      return moduleMapper.http404.apply(context, arguments);
+      var payload = moduleMapper.http404.apply(context, arguments);
+      return httpRespond.apply(payload, arguments);
     }
 
     // First lets check if we have a custom module loaded for this kind of file/path
@@ -94,7 +95,8 @@
         log.trace(req.originalUrl, module, matchingModuleLoaded);
 
         if (matchingModuleLoaded) {
-          return moduleMapper[module].apply(context, arguments);
+          payload = moduleMapper[module].apply(context, arguments);
+          return httpRespond.apply(payload, arguments);
         } else {
           log.warn(module + ' module not in map or ' + module + 'module error');
         }
@@ -104,7 +106,10 @@
     // If we don't have an explicit custom match, continue the core mod handlers
     if (isMarkdown) {
       if (moduleMapper.hasOwnProperty('markdown')) {
-        payload = moduleMapper.markdown.apply(context, arguments);
+        moduleMapper.markdown.apply(context, arguments)
+          .then(function (payload) {
+            return httpRespond.apply(payload, [req, res, next]);
+          });
       } else {
         log.warn('Markdown module not in map or Markdown module error');
       }
@@ -114,6 +119,7 @@
       // Log DIR request
       if (moduleMapper.hasOwnProperty('directory')) {
         payload = moduleMapper.directory.apply(context, arguments);
+        return httpRespond.apply(payload, arguments);
       } else {
         log.warn('Directory module not in map or Directory module error');
       }
@@ -122,13 +128,14 @@
     else {
       // Fall back to file
       if (moduleMapper.hasOwnProperty('file')) {
-        payload = moduleMapper.file.apply(context, arguments);
+        moduleMapper.file.apply(context, arguments);
+        // Skip over http response as the Send happens
+        // in the module itself
+        return null;
       } else {
         log.warn('File module not in map or File module error');
       }
     }
-
-    return httpRespond.apply(payload, arguments);
   }
 
 

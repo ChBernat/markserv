@@ -60,11 +60,14 @@
       var result = template(data);
 
       // Pass Back to HTTP Request Handler or HTTP Exporter
-      return {
+      var payload =  {
         statusCode: 200,
         contentType: 'text/html',
         data: result,
       };
+
+      return payload;
+
     };
 
   }
