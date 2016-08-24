@@ -52,9 +52,14 @@
         var markdownTemplate = Handlebars.compile(result);
         var finalResult = markdownTemplate(data);
 
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(finalResult);
-        res.end();
+        // Pass Back to HTTP Request Handler or HTTP Exporter
+        var payload =  {
+          statusCode: 200,
+          contentType: 'text/html',
+          data: finalResult,
+        };
+
+        return payload;
 
       });
 

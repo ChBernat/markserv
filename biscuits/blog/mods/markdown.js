@@ -22,27 +22,38 @@
 
 
   function init (htmlTemplate) {
-
     return function markdown (req, res, next) {
 
-      var filename = this.path.root + req.originalUrl;
+      var that = this;
 
-      var markdownRaw = fs.readFileSync(filename).toString();
+        return new Promise(function (resolve, reject) {
 
-      markdownToHtml(markdownRaw)
-      .then(function (markdownHtml) {
+        var filename = that.path.root + req.originalUrl;
 
-        var data = {
-          markdown: markdownHtml,
-          markserv: this,
-        };
+        var markdownRaw = fs.readFileSync(filename).toString();
 
-        var template = Handlebars.compile(htmlTemplate);
-        var result = template(data);
+        return markdownToHtml(markdownRaw)
+        .then(function (markdownHtml) {
 
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(result);
-        res.end();
+          var data = {
+            markdown: markdownHtml,
+            markserv: that,
+          };
+
+          var template = Handlebars.compile(htmlTemplate);
+          var result = template(data);
+
+          // Pass Back to HTTP Request Handler or HTTP Exporter
+          var payload = {
+            statusCode: 200,
+            contentType: 'text/html',
+            data: result,
+          };
+
+          // return payload;
+          resolve(payload);
+
+        });
 
       });
 
