@@ -90,8 +90,7 @@ let LIVE_RELOAD_PORT,
     HTTP_SERVER,
     CONNECT_APP;
 
-const findOpenPort = (range) => {
-  return new Promise((resolve, reject) => {
+const findOpenPort = (range) => new Promise((resolve, reject) => {
     openPort.find({startingPort: range[0], endingPort: range[1]},
       (err, port) => {
         if(err) return reject(err);
@@ -99,25 +98,20 @@ const findOpenPort = (range) => {
       }
     );
   });
-}
 
-const setLiveReloadPort = (port) => {
-  return new Promise((resolve, reject) => {
+const setLiveReloadPort = (port) => new Promise((resolve, reject) => {
     LIVE_RELOAD_PORT = port;
     resolve(port);
   });
-}
 
-const setHTTPPort = (port) => {
-  return new Promise((resolve, reject) => {
+const setHTTPPort = (port) => new Promise((resolve, reject) => {
     HTTP_PORT = port;
     resolve(port);
   });
-}
 
 
-const startConnectApp = (live_reload_port) => {
-  return new Promise((resolve, reject) => {
+
+const startConnectApp = (live_reload_port) => new Promise((resolve, reject) => {
     CONNECT_APP = connect()
       .use('/', http_request_handler)
       .use(connectLiveReload({
@@ -125,26 +119,21 @@ const startConnectApp = (live_reload_port) => {
       }));
     resolve(CONNECT_APP);
   });
-}
 
-const startHTTPServer = () => {
-  return new Promise((resolve, reject) => {
+const startHTTPServer = () => new Promise((resolve, reject) => {
     HTTP_SERVER = http.createServer(CONNECT_APP);
     HTTP_SERVER.listen(HTTP_PORT, flags.address);
     resolve(HTTP_SERVER);
   });
-}
 
 
-const startLiveReloadServer = () => {
-  return new Promise((resolve, reject) => {
+const startLiveReloadServer = () => new Promise((resolve, reject) => {
     LIVE_RELOAD_SERVER = liveReload.createServer({
       exts: watchExtensions,
       port: LIVE_RELOAD_PORT
     }).watch(flags.dir);
     resolve(LIVE_RELOAD_SERVER);
   });
-}
 
 const serversActivated = () => {
   const address = HTTP_SERVER.address();
