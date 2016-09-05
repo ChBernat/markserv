@@ -332,39 +332,43 @@ const buildHTMLFromMarkDown = (markdownPath) => new Promise((resolve, reject) =>
       if (flags.navigation) navigation = data[4];
 
       if (flags.less === GitHubStyle) {
-        output_html = '<!DOCTYPE html>' +
-          '<head>' +
-          '<title>' + title + '</title>' +
-          '<meta charset="utf-8">' +
-          '<style>' + css + '</style>' +
-          '<link rel="stylesheet" href="//sindresorhus.com/github-markdown-css/github-markdown.css">' +
-          '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
-          '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
-          '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
-          '</head>' +
-          '<body><article class="markdown-body">' + html_body + '</article></body>'+
-          '<script src="http://localhost:35729/livereload.js?snipver=1"></script>'+
-          '<script>hljs.initHighlightingOnLoad();</script>';
+        output_html = `
+          <!DOCTYPE html>
+            <head>
+              <title>${title}</title>
+              <meta charset="utf-8">
+              <style>${css}</style>
+              <link rel="stylesheet" href="//sindresorhus.com/github-markdown-css/github-markdown.css">
+              <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+              <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+              <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">
+            </head>
+            <body>
+              <article class="markdown-body">${html_body}</article>
+            </body>
+            <script src="http://localhost:35729/livereload.js?snipver=1"></script>
+            <script>hljs.initHighlightingOnLoad();</script>`;
       } else {
-        output_html = '<!DOCTYPE html>' +
-          '<head>' +
-          '<title>' + title + '</title>' +
-          '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
-          '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
-          '<link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">' +
-          '<meta charset="utf-8">' +
-          '<style>' + css + '</style>' +
-          '</head>' +
-          '<body>'+
-            '<div class="container">' +
-              (header ? '<header>' + header + '</header>' : '' ) +
-              (navigation ? '<nav>' + navigation + '</nav>' : '' ) +
-              '<article>' + html_body + '</article>' +
-              (footer ? '<footer>' + footer + '</footer>' : '' ) +
-            '</div>' +
-           '</body>'+
-          '<script src="http://localhost:35729/livereload.js?snipver=1"></script>' +
-          '<script>hljs.initHighlightingOnLoad();</script>';
+        output_html = `
+          <!DOCTYPE html>
+            <head>
+              <title>${title}</title>
+              <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+              <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+              <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/github-gist.css">
+              <meta charset="utf-8">
+              <style>${css}</style>
+            </head>
+            <body>
+              <div class="container">
+                ${(header ? '<header>' + header + '</header>' : '' )}
+                ${(navigation ? '<nav>' + navigation + '</nav>' : '' )}
+                <article>${html_body}</article>
+                ${(footer ? '<footer>' + footer + '</footer>' : '' )}
+              </div>
+            </body>
+            <script src="http://localhost:35729/livereload.js?snipver=1"></script>
+            <script>hljs.initHighlightingOnLoad();</script>`;
 
       }
 
@@ -415,14 +419,14 @@ const compileAndSendDirectoryListing = (path, res) => {
     const dir = fs.statSync(path + subPath).isDirectory();
     let href;
     if (dir){
-      href=subPath + '/';
-      list += '\t<li class="dir"><a href="' + href + '">' + href + '</a></li> \n';
+      href = subPath + '/';
+      list += `\t<li class="dir"><a href="${href}">${href}</a></li> \n`;
     } else {
-      href=subPath;
+      href = subPath;
       if (subPath.split('.md')[1] === '') {
-        list += '\t<li class="md"><a href="' + href + '">' + href + '</a></li> \n';
+        list += `\t<li class="md"><a href="${href}">${href}</a></li> \n`;
       } else {
-        list += '\t<li class="file"><a href="' + href + '">' + href + '</a></li> \n';
+        list += `\t<li class="file"><a href="${href}">${href}</a></li> \n`;
       }
     }
   });
@@ -430,24 +434,25 @@ const compileAndSendDirectoryListing = (path, res) => {
   list += '</ul>\n';
 
   buildStyleSheet(cssPath).then((css) => {
-    const html = '<!DOCTYPE html>' +
-      '<head>'+
-      '<title>' + (path.slice(2)) + '</title>'+
-      '<meta charset="utf-8">' +
-      '<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>'+
-      '<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>'+
-      '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">'+
-      '<link rel="stylesheet" href="//highlightjs.org/static/demo/styles/github-gist.css">'+
-      '<link rel="shortcut icon" type="image/x-icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/markdown-128.png" />'+
-      '<style>' + (css) + '</style>'+
-      '</head>'+
-      '<body>'+
-        '<article class="markdown-body">'+
-          '<h1>Index of '+(path.slice(2))+'</h1>' + list+
-          '<sup><hr> Served by <a href="https://www.npmjs.com/package/markserv">MarkServ</a> | ' + process.pid + '</sup>'+
-        '</article>'+
-       '</body>'+
-      '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
+    const html = `
+      <!DOCTYPE html>
+        <head>
+          <title>${path.slice(2)}</title>
+          <meta charset="utf-8">
+          <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+          <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+          <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/default.min.css">
+          <link rel="stylesheet" href="//highlightjs.org/static/demo/styles/github-gist.css">
+          <link rel="shortcut icon" type="image/x-icon" href="https://cdn0.iconfinder.com/data/icons/octicons/1024/markdown-128.png" />
+          <style>${css}</style>
+        </head>
+        <body>
+          <article class="markdown-body">
+            <h1>Index of ${path.slice(2)}</h1>${list}
+            <sup><hr> Served by <a href="https://www.npmjs.com/package/markserv">MarkServ</a> | PID: ${process.pid}</sup>
+          </article>
+        </body>
+        <script src="http://localhost:35729/livereload.js?snipver=1"></script>`;
 
     // Log if verbose
 
