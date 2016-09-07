@@ -38,7 +38,7 @@ const PORT_RANGE = {
 
 // Requirements
 
-const Promise = require('bluebird'),
+const bluebird = require('bluebird'),
   connect = require('connect'),
   http = require('http'),
   open = require("open"),
@@ -90,7 +90,7 @@ let LIVE_RELOAD_PORT,
     HTTP_SERVER,
     CONNECT_APP;
 
-const findOpenPort = (range) => new Promise((resolve, reject) => {
+const findOpenPort = (range) => new bluebird((resolve, reject) => {
     openPort.find({startingPort: range[0], endingPort: range[1]},
       (err, port) => {
         if(err) return reject(err);
@@ -99,19 +99,19 @@ const findOpenPort = (range) => new Promise((resolve, reject) => {
     );
   });
 
-const setLiveReloadPort = (port) => new Promise((resolve, reject) => {
+const setLiveReloadPort = (port) => new bluebird((resolve, reject) => {
     LIVE_RELOAD_PORT = port;
     resolve(port);
   });
 
-const setHTTPPort = (port) => new Promise((resolve, reject) => {
+const setHTTPPort = (port) => new bluebird((resolve, reject) => {
     HTTP_PORT = port;
     resolve(port);
   });
 
 
 
-const startConnectApp = (live_reload_port) => new Promise((resolve, reject) => {
+const startConnectApp = (live_reload_port) => new bluebird((resolve, reject) => {
     CONNECT_APP = connect()
       .use('/', http_request_handler)
       .use(connectLiveReload({
@@ -120,14 +120,14 @@ const startConnectApp = (live_reload_port) => new Promise((resolve, reject) => {
     resolve(CONNECT_APP);
   });
 
-const startHTTPServer = () => new Promise((resolve, reject) => {
+const startHTTPServer = () => new bluebird((resolve, reject) => {
     HTTP_SERVER = http.createServer(CONNECT_APP);
     HTTP_SERVER.listen(HTTP_PORT, flags.address);
     resolve(HTTP_SERVER);
   });
 
 
-const startLiveReloadServer = () => new Promise((resolve, reject) => {
+const startLiveReloadServer = () => new bluebird((resolve, reject) => {
     LIVE_RELOAD_SERVER = liveReload.createServer({
       exts: watchExtensions,
       port: LIVE_RELOAD_PORT
@@ -227,7 +227,7 @@ const boohoo = (type) => cursor
 
 // getFile: reads utf8 content from a file
 
-const getFile = (path) => new Promise((resolve, reject) => {
+const getFile = (path) => new bluebird((resolve, reject) => {
     fs.readFile(path, 'utf8', (err, data) => {
       if (err) return reject(err);
       resolve(data);
@@ -237,13 +237,13 @@ const getFile = (path) => new Promise((resolve, reject) => {
 
 // Get Custom Less CSS to use in all Markdown files
 
-const buildStyleSheet = (cssPath) => new Promise((resolve, reject) => getFile(cssPath).then((data) => less.render(data).then((data) => resolve(data.css))));
+const buildStyleSheet = (cssPath) => new bluebird((resolve, reject) => getFile(cssPath).then((data) => less.render(data).then((data) => resolve(data.css))));
 
 
 
 // linkify: converts github style wiki markdown links to .md links
 
-const linkify = (body) => new Promise((resolve, reject) => {
+const linkify = (body) => new bluebird((resolve, reject) => {
     jsdom.env(body, (err, window) => {
       if (err) return reject(err);
 
@@ -280,7 +280,7 @@ const linkify = (body) => new Promise((resolve, reject) => {
 
 // markdownToHTML: turns a Markdown file into HTML content
 
-const markdownToHTML = (markdownText) => new Promise((resolve, reject) => {
+const markdownToHTML = (markdownText) => new bluebird((resolve, reject) => {
     marked(markdownText, (err, data) => {
       if (err) return reject(err);
       resolve(data);
@@ -289,7 +289,7 @@ const markdownToHTML = (markdownText) => new Promise((resolve, reject) => {
 
 // buildHTMLFromMarkDown: compiles the final HTML/CSS output from Markdown/Less files, includes JS
 
-const buildHTMLFromMarkDown = (markdownPath) => new Promise((resolve, reject) => {
+const buildHTMLFromMarkDown = (markdownPath) => new bluebird((resolve, reject) => {
 
     const stack = [
       buildStyleSheet(cssPath),
@@ -315,7 +315,7 @@ const buildHTMLFromMarkDown = (markdownPath) => new Promise((resolve, reject) =>
         .then(linkify),
     ];
 
-    Promise.all(stack).then((data) => {
+    bluebird.all(stack).then((data) => {
 
       const css = data[0],
             html_body = data[1],
